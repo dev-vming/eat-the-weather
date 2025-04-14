@@ -1,26 +1,30 @@
+"use client"
+
 import Link from 'next/link';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div>
+    <main className="px-4 py-6 min-h-[calc(100vh-56px)]">
+      <div>
       홈페이지
       <ul>
         <li>
           <Link href="/posts">게시판</Link>
         </li>
         <li>
-          <Link href="/weather">weather</Link>
+          <Link href="/weather">날씨</Link>
         </li>
         <li>
-          <Link href="/login">login</Link>
+          <Link href="/auth/login">로그인</Link>
         </li>
         <li>
-          <Link href="/sign-up">weather</Link>
+          <Link href="/auth/sign-up">회원가입</Link>
         </li>
         <li>
-          <Link href="/my-page">my-page</Link>
+          <Link href="/my-page">마이페이지</Link>
         </li>
       </ul>
     </div>
+    </main>
   );
 }
