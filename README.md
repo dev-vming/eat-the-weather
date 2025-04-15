@@ -1,7 +1,7 @@
 # 🌤️ Eat the Weather
 
 <p align="center">
-  <img src="로고_이미지_URL" alt="Eat the Weather Logo" width="200"/>
+  <img src="public/EatTheWeather.png" alt="Eat the Weather Logo" width="200"/>
 </p>
 
 > **날씨를 ‘보는’ 데서 그치지 않고, 직접 ‘경험하고 공유하는’ 날씨 커뮤니티 웹 애플리케이션**
@@ -15,19 +15,19 @@
 <table>
   <tr align="center">
     <td>
-      <img src="https://avatars.githubusercontent.com/사용자1" width="100" height="100"/><br/>
+      <img src="https://avatars.githubusercontent.com/1juyoung" width="100" height="100"/><br/>
       <b>김주영</b><br/>
       역할<br/>
       <a href="https://github.com/1juyoung">GitHub</a>
     </td>
     <td>
-      <img src="https://avatars.githubusercontent.com/사용자2" width="100" height="100"/><br/>
+      <img src="https://avatars.githubusercontent.com/dev-vming" width="100" height="100"/><br/>
       <b>양민정</b><br/>
       역할<br/>
       <a href="https://github.com/dev-vming">GitHub</a>
     </td>
     <td>
-      <img src="https://avatars.githubusercontent.com/사용자3" width="100" height="100"/><br/>
+      <img src="https://avatars.githubusercontent.com/ChoiMHMH" width="100" height="100"/><br/>
       <b>최민혁</b><br/>
       역할<br/>
       <a href="https://github.com/ChoiMHMH">GitHub</a>
