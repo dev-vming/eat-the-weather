@@ -1,7 +1,7 @@
 # 🌤️ Eat the Weather
 
 <p align="center">
-  <img src="/EatTheWeather.png" alt="Eat the Weather Logo" width="200"/>
+  <img src="public/EatTheWeather.png" alt="Eat the Weather Logo" width="200"/>
 </p>
 
 > **날씨를 ‘보는’ 데서 그치지 않고, 직접 ‘경험하고 공유하는’ 날씨 커뮤니티 웹 애플리케이션**
