@@ -1,5 +1,5 @@
 export interface UserRegionFavorite {
-  userId: string; // UUID
-  regionId: string; // UUID
-  isPrimary: boolean; // Default: false
+  user_id: string; // UUID
+  region_id: string; // UUID
+  is_primary: boolean; // Default: false
 }

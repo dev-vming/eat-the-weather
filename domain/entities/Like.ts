@@ -1,4 +1,4 @@
 export interface Like {
-  userId: string; // UUID of the user
-  postId: string; // UUID of the post
+  user_id: string; // UUID of the user
+  post_id: string; // UUID of the post
 }
