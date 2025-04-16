@@ -1,5 +1,5 @@
 'use client';
-import ChoiceButton from '../components/ChoiceButton';
+import ChoiceButton from '@/app/components/ChoiceButton';
 import { useRouter } from 'next/navigation';
 
 function OnboardingStep3() {
