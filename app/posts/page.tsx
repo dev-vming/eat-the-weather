@@ -1,7 +1,8 @@
 'use client';
 
-import PostHeader from "../components/PostHeader";
-import PostItem, { PostProps } from "../components/PostItem";
+import PostHeader from '../components/PostHeader';
+import PostItem, { PostProps } from '../components/PostItem';
+import { Plus } from 'lucide-react';
 
 const dummyPosts: PostProps[] = [
   {
@@ -51,16 +52,15 @@ const dummyPosts: PostProps[] = [
   },
 ];
 
-
 export default function PostPage() {
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-screen flex flex-col bg-white relative">
       <PostHeader />
       {/* ✅ 게시글 영역 (스크롤 가능) */}
       <div className="flex-1 overflow-y-auto px-4 pb-14">
         {/* 게시글 컴포넌트 넣을 공간 */}
         {dummyPosts.map((e, i) => (
-          <PostItem 
+          <PostItem
             content={e.content}
             date={e.date}
             nickname={e.nickname}
@@ -72,6 +72,9 @@ export default function PostPage() {
           />
         ))}
       </div>
+      <button className="absolute bottom-18 right-8 z-50 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors cursor-pointer">
+        <Plus className="w-6 h-6" />
+      </button>
     </div>
   );
 }
