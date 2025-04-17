@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import ChoiceButton from './components/ChoiceButton';
+import ChoiceButton from '@/app/components/ChoiceButton';
 import Image from 'next/image';
 
 function Onboarding() {
