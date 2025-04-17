@@ -12,6 +12,7 @@ export const SbUserRepository = (): UserRepository => ({
     if (error || !data) return null;
     return {
       user_id: data.user_id,
+      password: data.password,
       email: data.email,
       nickname: data.nickname,
       provider: data.provider,

@@ -1,4 +1,4 @@
-import { EmailLoginRequestDto, EmailSignupRequestDto } from "@/application/usecases/auth/dto/AuthDto";
+import { EmailSignupRequestDto } from "@/application/usecases/auth/dto/AuthDto";
 import { User } from "../entities/User";
 
 export interface UserRepository {
