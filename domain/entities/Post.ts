@@ -1,9 +1,9 @@
 export interface Post {
-  postId: string; // UUID
+  post_id: string; // UUID
   content: string;
-  createdAt: Date;
-  updatedAt: Date | null; //null일 시 수정되지 않음
-  postImage: string | null; //null일 시 이미지 없음(default), 기본 이미지지
-  userId: string; // UUID
-  regionId: string; // UUID
+  created_at: Date;
+  updated_at: Date | null; //null일 시 수정되지 않음
+  post_image: string | null; //null일 시 이미지 없음(default), 기본 이미지지
+  user_id: string; // UUID
+  region_id: string; // UUID
 }
