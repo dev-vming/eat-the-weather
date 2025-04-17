@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EmailSignupRequestDto } from '@/application/usecases/auth/dto/AuthDto';
 import { SbUserRepository } from '@/infra/repositories/supabase/SbUserRepository';
-import { signupWithEmail } from '@/application/usecases/auth/EmailSignupUsecase';
-import { setAuthCookie } from '@/utils/cookie';
+import { EmailSignupUsecase } from '@/application/usecases/auth/EmailSignupUsecase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,17 +9,17 @@ export async function POST(req: NextRequest) {
     const { email, password, nickname, onboarding_completed, temperature_sensitivity, provider } =
       body as EmailSignupRequestDto;
 
-    const { user, token } = await signupWithEmail(SbUserRepository(), {
+    const { user } = await EmailSignupUsecase(SbUserRepository(), {
       email,
       password,
       nickname,
       onboarding_completed,
       temperature_sensitivity,
-      provider: 'email',
+      provider,
     });
 
     const res = NextResponse.json({ user }, { status: 201 });
-    // setAuthCookie(res, token);
+
     return res;
   } catch (error: any) {
     return NextResponse.json({ message: error.message || '회원가입 실패' }, { status: 400 });

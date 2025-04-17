@@ -1,5 +1,5 @@
 import { SbUserRepository } from './../../../../infra/repositories/supabase/SbUserRepository';
-import { loginWithEmail } from './../../../../application/usecases/auth/EmailLoginUsecase';
+import { EmailLoginUsecase } from './../../../../application/usecases/auth/EmailLoginUsecase';
 import { NextRequest, NextResponse } from 'next/server';
 import { EmailLoginRequestDto } from '@/application/usecases/auth/dto/AuthDto';
 import { setAuthCookie } from '@/utils/cookie';
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
     const { email, password, remember } = body as EmailLoginRequestDto & { remember: boolean };
 
-    const { user, token } = await loginWithEmail(SbUserRepository(), { email, password });
+    const { user, token } = await EmailLoginUsecase(SbUserRepository(), { email, password });
 
     const res = NextResponse.json({ user }, { status: 200 });
 

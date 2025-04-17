@@ -4,7 +4,7 @@ import { AuthToken } from '@/utils/AuthToken';
 import { EmailLoginRequestDto } from './dto/AuthDto';
 import { User } from '@/domain/entities/User';
 
-export const loginWithEmail = async (
+export const EmailLoginUsecase = async (
   userRepository: UserRepository,
   dto: EmailLoginRequestDto
 ): Promise<{ user: User; token: string }> => {
