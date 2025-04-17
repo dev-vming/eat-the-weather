@@ -20,8 +20,7 @@ export async function POST(req: NextRequest) {
     });
 
     const res = NextResponse.json({ user }, { status: 201 });
-    setAuthCookie(res, token);
-
+    // setAuthCookie(res, token);
     return res;
   } catch (error: any) {
     return NextResponse.json({ message: error.message || '회원가입 실패' }, { status: 400 });
