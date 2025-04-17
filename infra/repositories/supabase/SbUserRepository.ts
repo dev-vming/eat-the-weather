@@ -4,35 +4,44 @@ import { supabase } from './Sbclient';
 export const SbUserRepository = (): UserRepository => ({
   async findByEmail(email) {
     const { data, error } = await supabase
-      .from('users')
+      .from('user')
       .select('*')
       .eq('email', email)
       .single();
 
     if (error || !data) return null;
-
     return {
-      userId: data.userId,
+      user_id: data.user_id,
       email: data.email,
       nickname: data.nickname,
       provider: data.provider,
-      onboardingCompleted: data.onboardingCompleted,
-      temperatureSetting: data.temperatureSetting,
-      profileImage: data.profileImage,
+      onboarding_completed: data.onboardingCompleted,
+      temperature_sensitivity: data.temperatureSetting,
+      profile_image: data.profileImage,
     };
+  },
+
+  async findByNickname(nickname) {
+    const { data, error } = await supabase
+      .from('user')
+      .select('*')
+      .eq('nickname', nickname)
+      .single();
+
+    if (error || !data) return false;
+    else return true;
   },
 
   async create(user) {
     const { data, error } = await supabase
-      .from('users')
+      .from('user')
       .insert({
         email: user.email,
         nickname: user.nickname,
         provider: user.provider,
         password: user.password,
-        onboardingCompleted: user.onboardingCompleted,
-        temperatureSetting: user.temperatureSetting,
-        profileImage: user.profileImage,
+        onboarding_completed: user.onboarding_completed,
+        temperature_sensitivity: user.temperature_sensitivity,
       })
       .select()
       .single();
@@ -40,16 +49,13 @@ export const SbUserRepository = (): UserRepository => ({
     if (error) throw new Error('유저 생성 실패');
 
     return {
-      userId: data.userId,
+      user_id: data.user_id,
       email: data.email,
       nickname: data.nickname,
       provider: data.provider,
-      password: data.password,
-      profileImage: data.profileImage,
-      temperatureSetting: data.temperatureSetting,
-      onboardingCompleted: data.onboardingCompleted
+      onboarding_completed: data.onboardingCompleted,
+      temperature_sensitivity: data.temperatureSetting,
+      profile_image: data.profileImage,
     };
   },
 });
-
-

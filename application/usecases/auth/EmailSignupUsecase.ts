@@ -8,8 +8,11 @@ export const signupWithEmail = async (
   userRepository: UserRepository,
   dto: EmailSignupRequestDto
 ): Promise<{ user: User; token: string }> => {
-  const existing = await userRepository.findByEmail(dto.email);
-  if (existing) throw new Error('이미 존재하는 이메일입니다.');
+  const existinEmail = await userRepository.findByEmail(dto.email);
+  if (existinEmail) throw new Error('이미 존재하는 이메일입니다.');
+  
+  const existinNickname = await userRepository.findByNickname(dto.nickname);
+  if (existinNickname) throw new Error('이미 존재하는 닉네임입니다.');
 
   const hashed = await bcrypt.hash(dto.password, 10);
   const user = await userRepository.create({    
@@ -17,10 +20,11 @@ export const signupWithEmail = async (
     nickname: dto.nickname,
     password: hashed,
     provider: 'email',
-    onboardingCompleted: dto.onboardingCompleted,
-    temperatureSetting: dto.temperatureSetting,
+    onboarding_completed: dto.onboarding_completed,
+    temperature_sensitivity: dto.temperature_sensitivity,
   });
 
   const token = AuthToken.issueToken(user);
   return { user, token };
 };
+

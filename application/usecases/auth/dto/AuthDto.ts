@@ -7,9 +7,7 @@ export interface EmailSignupRequestDto {
   email: string;
   password: string;
   nickname: string;
-  onboardingCompleted: boolean;
-  temperatureSetting: number;
+  onboarding_completed: boolean;
+  temperature_sensitivity: number;
   provider: "kakao" | "email";
-  profileImage?: string,
 }
-
