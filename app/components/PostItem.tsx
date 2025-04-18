@@ -1,7 +1,7 @@
 'use client'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart } from 'lucide-react';
 import SensitivityBadge from './SensitivityBadge';
+import PostUserBox from './PostUserBox';
 
 export interface PostProps {
   content: string;
@@ -30,16 +30,7 @@ export default function PostItem({
     <div className={`px-4 py-5 ${detail?"":"cursor-pointer hover:bg-gray-50"}`}>
       {/* 프로필, 좋아요 영역 */}
       <div className="flex justify-between mb-3">
-        <div className="flex items-center gap-5">
-          <Avatar className="w-12 h-12">
-            <AvatarImage src="/images/user.png" alt="유저 아바타" />
-            <AvatarFallback className='text-sm'>{nickname[0]}</AvatarFallback>
-          </Avatar>
-          <div className="text-gray-500 text-sm font-semibold">
-            <p>{nickname}</p>
-            <p>{date}</p>
-          </div>
-        </div>
+        <PostUserBox nickname={nickname} date={date} />
         <div className="flex items-center justify-center text-gray-500 gap-1">
           <Heart className={`w-4 h-4 ${liked ? 'fill-rose-400 text-rose-400' : ''}`} />
           <p className="text-sm font-semibold">{likeCount}</p>
