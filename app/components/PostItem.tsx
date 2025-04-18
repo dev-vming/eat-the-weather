@@ -1,3 +1,4 @@
+'use client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart } from 'lucide-react';
 import SensitivityBadge from './SensitivityBadge';
@@ -11,6 +12,7 @@ export interface PostProps {
   liked?: boolean;
   likeCount: number;
   sensitivity: number;
+  detail?: boolean;
 }
 
 export default function PostItem({
@@ -22,9 +24,10 @@ export default function PostItem({
   liked,
   likeCount,
   sensitivity,
+  detail,
 }: PostProps) {
   return (
-    <div className="px-4 py-5 cursor-pointer hover:bg-gray-50 border-b">
+    <div className={`px-4 py-5 ${detail?"":"cursor-pointer hover:bg-gray-50"}`}>
       {/* 프로필, 좋아요 영역 */}
       <div className="flex justify-between mb-3">
         <div className="flex items-center gap-5">
