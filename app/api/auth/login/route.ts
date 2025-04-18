@@ -7,8 +7,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { email, password } = body as EmailLoginRequestDto;
-    const { user, token } = await EmailLoginUsecase(SbUserRepository(), { email, password });
-    const res = NextResponse.json({ user, token }, { status: 200 });
+    const { accessToken, refreshToken } = await EmailLoginUsecase(
+      SbUserRepository(),
+      { email, password }
+    );
+    const res = NextResponse.json(
+      { accessToken, refreshToken },
+      { status: 200 }
+    );
 
     return res;
   } catch (error: any) {

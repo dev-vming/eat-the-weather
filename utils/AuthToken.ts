@@ -1,42 +1,42 @@
-import jwt, {
-  JwtPayload as DefaultJwtPayload,
-  SignOptions,
-} from 'jsonwebtoken';
-import { User } from '@/domain/entities/User';
+import jwt, { JwtPayload as DefaultJwtPayload, SignOptions } from "jsonwebtoken";
+import { User } from "@/domain/entities/User";
 
 export interface JwtPayload extends DefaultJwtPayload {
   email: string;
   nickname: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET = process.env.JWT_SECRET!;
+const REFRESH_SECRET = process.env.REFRESH_SECRET!;
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET 환경 변수가 설정되지 않았습니다.');
+if (!JWT_SECRET || !REFRESH_SECRET) {
+  throw new Error("JWT_SECRET 또는 REFRESH_SECRET이 설정되지 않았습니다.");
 }
 
 export const AuthToken = {
-  issueToken: (user: User): string => {
+  issueAccessToken: (email: string,nickname:string): string => {
     const payload: JwtPayload = {
-      email: user.email,
-      nickname: user.nickname,
+      email,
+      nickname,
     };
-
-    // 기한 설정 논의 필요
-    const options: SignOptions = {
-      expiresIn: "7d"
-    };
-
+    const options: SignOptions = { expiresIn: "1h" }; // 짧게
     return jwt.sign(payload, JWT_SECRET, options);
   },
 
-  verifyToken: (token: string): JwtPayload => {
-    const decoded = jwt.verify(token, JWT_SECRET) as DefaultJwtPayload;
+  issueRefreshToken: (email: string, nickname:string): string => {
+    const payload: JwtPayload = {
+      email,
+      nickname,
+    };
+    const options: SignOptions = { expiresIn: "7d" }; // 길게
+    return jwt.sign(payload, REFRESH_SECRET, options);
+  },
 
-    if (typeof decoded === 'object' && decoded !== null) {
-      return decoded as JwtPayload;
-    }
+  verifyAccessToken: (token: string): JwtPayload => {
+    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+  },
 
-    throw new Error('유효하지 않은 토큰입니다.');
+  verifyRefreshToken: (token: string): JwtPayload => {
+    return jwt.verify(token, REFRESH_SECRET) as JwtPayload;
   },
 };
