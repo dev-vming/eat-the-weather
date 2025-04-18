@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label'; 
 import { api } from '@/lib/axios';
 
 export default function LoginPage() {
@@ -12,7 +11,6 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const Style = {
@@ -26,7 +24,6 @@ export default function LoginPage() {
       const response = await api.post('/auth/login', {
         email,
         password,
-        remember,
       });
 
       alert('로그인 성공!');
@@ -57,20 +54,6 @@ export default function LoginPage() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-
-      <div className="flex items-center w-90 justify-between py-2">
-        <div className="flex items-center space-x-2">
-          <input
-            id="remember"
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-          />
-          <Label htmlFor="remember" className="text-sm">
-            로그인 상태 유지
-          </Label>
-        </div>
-      </div>
 
       <Button
         variant="ghost"
