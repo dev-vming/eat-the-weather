@@ -1,5 +1,4 @@
 import jwt, { JwtPayload as DefaultJwtPayload, SignOptions } from "jsonwebtoken";
-import { User } from "@/domain/entities/User";
 
 export interface JwtPayload extends DefaultJwtPayload {
   email: string;
