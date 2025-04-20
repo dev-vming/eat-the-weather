@@ -3,47 +3,74 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SbPostRepository } from '@/infra/repositories/supabase/SbPostRepository';
 import { CreatePostUsecase } from '@/application/usecases/post/CreatePostUsecase';
+import { GetAllPostsUsecase } from '@/application/usecases/post/GetAllPostsUsecase';
 import { PostCreateDto } from '@/application/usecases/post/dto/PostCreateDto';
+import { PostGetAllRequestDto } from '@/application/usecases/post/dto/PostGetAllRequestDto';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // 인증된 유저 정보가 들어온다고 가정 (미들웨어 or 헤더 or 세션)
-    const {
-      user_id,
-      region_id,
-      content,
-      post_image,
-      temperature_sensitivity,
-      has_outfit_tag,
-      has_weather_tag,
-    } = body;
-
     const dto: PostCreateDto = {
-      user_id,
-      region_id,
-      content,
-      post_image,
-      temperature_sensitivity,
-      has_outfit_tag,
-      has_weather_tag,
+      user_id: body.user_id,
+      region_id: body.region_id,
+      content: body.content,
+      post_image: body.post_image ?? 'default',
+      temperature_sensitivity: body.temperature_sensitivity,
+      has_outfit_tag: body.has_outfit_tag ?? false,
+      has_weather_tag: body.has_weather_tag ?? false,
     };
 
     const createdPost = await CreatePostUsecase(SbPostRepository, dto);
 
     return NextResponse.json({ post: createdPost }, { status: 201 });
   } catch (error: any) {
-    const errorMessage = error.message || '알 수 없는 에러가 발생했습니다';
-    const errorStack = error.stack || '스택 추적 정보를 사용할 수 없습니다';
-    return NextResponse.json(
-      {
-        message: `게시글 생성 중 에러 발생: ${errorMessage}`,
-        details: errorStack,
-      },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 400 });
   }
 }
 
-export async function GET(req: NextRequest) {}
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+
+    const dto: PostGetAllRequestDto = {
+      region_id: searchParams.get('region_id') ?? undefined,
+      user_id: searchParams.get('user_id') ?? undefined,
+      order_by:
+        (searchParams.get('order_by') as 'created_at' | 'like_count') ??
+        undefined,
+      ascending:
+        searchParams.get('ascending') === 'true'
+          ? true
+          : searchParams.get('ascending') === 'false'
+            ? false
+            : undefined,
+      tag_ids: searchParams.getAll('tag_ids'), // 배열 형태로 받을 경우
+      only_sensitive_match: searchParams.get('only_sensitive_match') === 'true',
+      my_temperature_sensitivity: searchParams.get('my_temperature_sensitivity')
+        ? Number(searchParams.get('my_temperature_sensitivity'))
+        : undefined,
+      has_outfit_tag:
+        searchParams.get('has_outfit_tag') === 'true'
+          ? true
+          : searchParams.get('has_outfit_tag') === 'false'
+            ? false
+            : undefined,
+      has_weather_tag:
+        searchParams.get('has_weather_tag') === 'true'
+          ? true
+          : searchParams.get('has_weather_tag') === 'false'
+            ? false
+            : undefined,
+      limit: searchParams.get('limit')
+        ? Number(searchParams.get('limit'))
+        : undefined,
+    };
+
+    const posts = await GetAllPostsUsecase(SbPostRepository, dto);
+
+    return NextResponse.json({ posts }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}

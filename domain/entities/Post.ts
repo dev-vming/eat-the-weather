@@ -9,4 +9,5 @@ export interface Post {
   temperature_sensitivity: number; // 작성 당시 유저 민감도 type snapshot 'cold':-1 | 'neutral':0 | 'hot':1
   has_outfit_tag?: boolean;
   has_weather_tag?: boolean;
+  like_count?: number; // 좋아요 수 (optional)
 }

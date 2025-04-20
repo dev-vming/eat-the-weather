@@ -54,6 +54,62 @@ export const SbPostRepository: PostRepository = {
 
     if (error) throw new Error(`Error updating post: ${error.message}`);
   },
+  async getAll(filter: PostFilter): Promise<Post[]> {
+    let query = supabase.from('post').select('*');
+
+    //  지역 필터
+    if (filter.region_id) {
+      query = query.eq('region_id', filter.region_id);
+    }
+
+    //  유저 기준 필터
+    if (filter.user_id) {
+      query = query.eq('user_id', filter.user_id);
+    }
+
+    //  민감도 필터링
+    if (
+      filter.only_sensitive_match &&
+      typeof filter.my_temperature_sensitivity === 'number'
+    ) {
+      query = query.eq(
+        'temperature_sensitivity',
+        filter.my_temperature_sensitivity
+      );
+    }
+
+    //  태그 포함 여부 필터링 (반정규화 기반)
+    if (filter.has_outfit_tag !== undefined) {
+      query = query.eq('has_outfit_tag', filter.has_outfit_tag);
+    }
+    if (filter.has_weather_tag !== undefined) {
+      query = query.eq('has_weather_tag', filter.has_weather_tag);
+    }
+
+    //  태그 ID 기반 필터링 (post_tag 테이블 조인 필요)
+    if (filter.tag_ids && filter.tag_ids.length > 0) {
+      const postIds = await getPostIdsByTagIds(filter.tag_ids);
+      query = query.in('post_id', postIds);
+    }
+
+    //  정렬 기준
+    if (filter.order_by) {
+      query = query.order(filter.order_by, {
+        ascending: filter.ascending ?? false,
+      });
+    }
+
+    //  개수 제한
+    if (filter.limit) {
+      query = query.limit(filter.limit);
+    }
+
+    const { data, error } = await query;
+
+    if (error || !data) throw new Error('게시글 필터 조회 실패');
+
+    return data as Post[];
+  },
 
   async delete(postId: string): Promise<void> {
     const { error } = await supabase
@@ -71,53 +127,6 @@ export const SbPostRepository: PostRepository = {
       .single();
     if (error) throw new Error(`Error fetching post by ID: ${error.message}`);
     return data as Post | null;
-  },
-
-  async getAll(filter: PostFilter): Promise<Post[]> {
-    let query = supabase.from('post').select('*');
-
-    // 지역 필터 (예: 서울특별시 중구)
-    if (filter.region_id) {
-      query = query.eq('region_id', filter.region_id);
-    }
-
-    // 해시태그 필터 (ex. #옷차림, #날씨 등 복수 선택 가능)
-    // post_tag 테이블을 통해 해당 태그들이 포함된 post_id만 필터링
-    if (filter.tag_ids && filter.tag_ids.length > 0) {
-      const postIds = await getPostIdsByTagIds(filter.tag_ids);
-      query = query.in('post_id', postIds);
-    }
-
-    // 📍 내 날씨 민감도와 유사한 게시물만 보기
-    // 예: 내 민감도가 2라면, 1~3 사이의 temp 민감도 게시글만 필터링
-    if (
-      filter.only_sensitive_match &&
-      typeof filter.my_temperature_sensitivity === 'number'
-    ) {
-      const mySens = filter.my_temperature_sensitivity;
-      query = query
-        .gte('temperature_sensitivity', mySens - 1)
-        .lte('temperature_sensitivity', mySens + 1);
-    }
-
-    // 정렬 기준 (ex. 최신순 or 인기순)
-    // 최신순 → created_at 기준 정렬
-    // 인기순 → like_count 기준 정렬
-    if (filter.order_by) {
-      query = query.order(filter.order_by, {
-        ascending: filter.ascending ?? false,
-      });
-    }
-
-    // 📍 게시물 개수 제한 (예: 10개만 불러오기)
-    if (filter.limit) {
-      query = query.limit(filter.limit);
-    }
-
-    const { data, error } = await query;
-
-    if (error || !data) throw new Error('게시글 필터 조회 실패');
-    return data as Post[];
   },
 
   async getByUserId(userId: string): Promise<Post[]> {
@@ -154,18 +163,13 @@ export const SbPostRepository: PostRepository = {
   },
 };
 
-/**
- * 보조함수: 선택된 tag_id 들을 기준으로 해당 태그가 달린 post_id 들을 조회
- * (post_tag 테이블 사용)
- */
 async function getPostIdsByTagIds(tagIds: string[]): Promise<string[]> {
   const { data, error } = await supabase
     .from('post_tag')
     .select('post_id')
     .in('tag_id', tagIds);
 
-  if (error || !data) throw new Error('태그 기준 게시글 ID 조회 실패');
+  if (error || !data) throw new Error('태그 기반 게시글 ID 조회 실패');
 
-  const postIds = [...new Set(data.map((d) => d.post_id))];
-  return postIds;
+  return [...new Set(data.map((d) => d.post_id))];
 }
