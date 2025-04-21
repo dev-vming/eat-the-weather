@@ -3,4 +3,5 @@ export interface Comment {
   post_id: string; // UUID
   user_id: string; // UUID
   content: string; // Text
+  created_at: Date; // Date
 }
