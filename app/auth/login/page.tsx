@@ -4,16 +4,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label'; 
 import { api } from '@/lib/axios';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [remember, setRemember] = useState(false);
 
   const Style = {
     Input: 'w-90 h-11 m-2 md:w-90',
@@ -23,11 +23,20 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await api.post('/auth/login', {
+      const res = await api.post<{ accessToken: string; refreshToken: string }>('/auth/login', {
         email,
         password,
-        remember,
       });
+
+      const { accessToken, refreshToken } = res.data;
+
+      if (remember) {
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      } else {
+        sessionStorage.setItem('accessToken', accessToken);
+        sessionStorage.setItem('refreshToken', refreshToken);
+      }
 
       alert('로그인 성공!');
       router.push('/');
@@ -41,7 +50,7 @@ export default function LoginPage() {
   return (
     <div className="justify-center items-center flex flex-col h-screen w-full">
       <img src="/logoImg.png" alt="Logo" className="w-auto h-65 md:h-80" />
-      
+
       <Input
         type="email"
         placeholder="이메일을 입력하세요."
@@ -66,7 +75,7 @@ export default function LoginPage() {
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
-          <Label htmlFor="remember" className="text-sm">
+          <Label htmlFor="remember" className="text-sm text-gray-500">
             로그인 상태 유지
           </Label>
         </div>
