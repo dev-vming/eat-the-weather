@@ -1,12 +1,27 @@
 'use client';
 import ChoiceButton from '@/app/components/ChoiceButton';
+import { api } from '@/lib/axios';
+import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
 
 function OnboardingStep3() {
   const router = useRouter();
-  const handleButtonClick = () => {
-    router.push('/');
+  const tempUser = useUserStore((state) => state.tempUser);
+  const { clearTempUser } = useUserStore();
+
+  const handleButtonClick = async () => {
+    try {
+      await api.post('/auth/sign-up', {
+        ...tempUser,
+      });
+      clearTempUser();
+      alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
+      router.push('/auth/login');
+    } catch (error: any) {
+      alert(error.response?.data?.message || '회원가입 실패 🥲');
+    }
   };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen px-6 bg-white">
       <p className="text-center text-lg font-semibold mb-4">

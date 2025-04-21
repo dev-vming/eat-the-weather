@@ -1,18 +1,32 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import ChoiceButton from '@/app/components/ChoiceButton';
 import Image from 'next/image';
+import { useUserStore } from '@/store/userStore';
+import { api } from '@/lib/axios';
 
 function Onboarding() {
   const router = useRouter();
+  const tempUser = useUserStore((state) => state.tempUser);
+  const { clearTempUser } = useUserStore();
 
   const handleStartOnboarding = () => {
     router.push('/onboarding/step1'); // Step1 페이지로 이동
   };
 
-  const handleSkipOnboarding = () => {
-    router.push('/'); // 랜딩 페이지로 이동
+  const handleSkipOnboarding = async () => {
+    try {
+      await api.post('/auth/sign-up', {
+        ...tempUser,
+      });
+      clearTempUser();
+      alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
+      router.push('/auth/login');
+    } catch (error: any) {
+      alert(error.response?.data?.message || '회원가입 실패 🥲');
+    }
   };
 
   return (
