@@ -8,6 +8,7 @@ interface UserInfo {
   temperature_sensitivity: number;
   provider: string;
   selectedClothes?: number;
+  selectedRegion?: string;
 }
 
 interface AdditionalInfo {

@@ -1,6 +1,13 @@
 'use client';
 
 import ChoiceButton from '@/app/components/ChoiceButton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -9,37 +16,42 @@ function OnboardingStep1() {
   const router = useRouter();
   const { setTempUser } = useUserStore();
 
-  const [selectedClothes, setSelectedClothes] = useState(0);
+  // TODO : 모든 지역 정보 받아오는 API 필요
+  // TODO : 선택한 지역 기온 정보 받아오는 API 필요
+  const regions = ['지역1', '지역2', '지역3', '지역4', '지역5'];
+
+  const [selectedRegion, setSelectedRegion] = useState('');
 
   const handlePrevious = () => {
     router.push('/onboarding');
   };
 
   const handleNext = () => {
-    setTempUser({selectedClothes});
+    setTempUser({ selectedRegion });
     router.push('/onboarding/step2');
   };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen px-6 bg-white">
       <p className="text-center text-lg font-semibold mb-6">
-        오늘 네가 입은 옷을 알려줘!
+        날씨를 불러올 지역을 알려줘! 
       </p>
-      <div className="space-y-4 w-full max-w-xs" >
-        <ChoiceButton onClick={()=>setSelectedClothes(0)} className="w-full py-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300">
-          민소매, 반팔, 반바지
-        </ChoiceButton>
-        <ChoiceButton value={1} className="w-full py-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300">
-          얇은 셔츠, 면바지
-        </ChoiceButton>
-        <ChoiceButton value={2} className="w-full py-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300">
-          자켓, 트렌치코트, 얇은 니트
-        </ChoiceButton>
-        <ChoiceButton value={3} className="w-full py-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300">
-          패딩, 기모바지, 내복, 두꺼운 니트
-        </ChoiceButton>
-      </div>
-      <div className="flex justify-between w-full max-w-xs mt-6 space-x-4">
+      <Select
+        value={selectedRegion}
+        onValueChange={(value) => setSelectedRegion(value)}
+      >
+        <SelectTrigger className="w-[300px]">
+          <SelectValue placeholder="지역명" />
+        </SelectTrigger>
+        <SelectContent>
+          {regions.map((region, index) => (
+            <SelectItem key={index} value={region}>
+              {region}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <div className="flex justify-between w-full max-w-xs mt-8 space-x-4">
         <ChoiceButton
           className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
           onClick={handlePrevious}

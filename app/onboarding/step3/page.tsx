@@ -1,46 +1,64 @@
 'use client';
+
 import ChoiceButton from '@/app/components/ChoiceButton';
-import { api } from '@/lib/axios';
 import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 function OnboardingStep3() {
   const router = useRouter();
-  const tempUser = useUserStore((state) => state.tempUser);
-  const { clearTempUser } = useUserStore();
+  const { setTempUser } = useUserStore();
 
-  const handleButtonClick = async () => {
-    try {
-      await api.post('/auth/sign-up', {
-        ...tempUser,
-      });
-      clearTempUser();
-      alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
-      router.push('/auth/login');
-    } catch (error: any) {
-      alert(error.response?.data?.message || '회원가입 실패 🥲');
-    }
+  const [selectedFeeling, setSelectedFeeling] = useState<number | null>(null);
+
+  // TODO : 선택한 지역의 기온과 옷차림 비교 , 체감 온도와 비교해서 민감도 설정
+
+  const handlePrevious = () => {
+    router.push('/onboarding/step2');
   };
+
+  const handleNext = () => {
+    setTempUser({ temperature_sensitivity : 0 });
+    router.push('/onboarding/step4');
+  };
+
+  const feelingOptions = ['더웠어', '적당했어', '추웠어'];
 
   return (
     <div className="flex flex-col items-center justify-center h-screen px-6 bg-white">
-      <p className="text-center text-lg font-semibold mb-4">
-        너는 더위를 / 추위를 <br />
-        많이 타는 편이구나?!
+      <p className="text-center text-lg font-semibold mb-6">
+        오늘 입은 옷 어땠어?
       </p>
-      <p className="text-center text-sm text-gray-500 mb-6">
-        앞으로 이 결과를 바탕으로 <br />
-        날씨를 알려줄게!
-      </p>
-      <p className="text-center text-xs text-gray-400 mb-8">
-        이 정보는 "마이페이지"에서 변경할 수 있어!
-      </p>
-      <ChoiceButton
-        className="w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
-        onClick={handleButtonClick}
-      >
-        고마워! 잘 부탁해!
-      </ChoiceButton>
+      <div className="space-y-4 w-full max-w-xs">
+        {feelingOptions.map((label, index) => (
+          <ChoiceButton
+            key={index}
+            value={index}
+            onClick={() => setSelectedFeeling(index)}
+            className={`w-full py-3 rounded-lg shadow-md ${
+              selectedFeeling === index
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            {label}
+          </ChoiceButton>
+        ))}
+      </div>
+      <div className="flex justify-between w-full max-w-xs mt-6 space-x-4">
+        <ChoiceButton
+          className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
+          onClick={handlePrevious}
+        >
+          이전
+        </ChoiceButton>
+        <ChoiceButton
+          className="flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+          onClick={handleNext}
+        >
+          다음
+        </ChoiceButton>
+      </div>
     </div>
   );
 }
