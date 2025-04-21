@@ -9,7 +9,7 @@ type Params = {
 };
 
 export async function GET(_: NextRequest, { params }: Params) {
-  const user_id = decodeURIComponent(params.user_id);
+  const { user_id } = await params;
 
   try {
     const favorites = await GetByUserIdRegionUsecase(SbRegionFavoriteRepository(), user_id);
