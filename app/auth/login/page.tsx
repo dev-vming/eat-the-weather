@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
 import { Label } from '@/components/ui/label';
+import { useUserStore } from '@/store/userStore';
+import { User } from '@/domain/entities/User';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,6 +39,12 @@ export default function LoginPage() {
         sessionStorage.setItem('accessToken', accessToken);
         sessionStorage.setItem('refreshToken', refreshToken);
       }
+
+      const userRes = await api.get<User>(`/user/${email}`);
+      console.log(userRes)
+      
+      useUserStore.getState().setUser(userRes.data);
+      useUserStore.getState().setPersistMode('post-signup');
 
       alert('로그인 성공!');
       router.push('/');

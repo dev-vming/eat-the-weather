@@ -148,6 +148,21 @@ export const useUserStore = create<UserStore>()(
         },
         removeItem: (name) => localStorage.removeItem(name),
       },
+      partialize: (state) => {
+        // persistMode에 따른 최소한의 상태만 저장하도록 설정
+        if (state.persistMode === 'post-signup') {
+          return {
+            user: state.user,
+            persistMode: state.persistMode,
+          } as UserStore;
+        } else {
+          return {
+            tempUser: state.tempUser,
+            onboardingInfo: state.onboardingInfo,
+            persistMode: state.persistMode,
+          } as UserStore;
+        }
+      },
     }
   )
 );
