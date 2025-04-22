@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware';
 interface UserInfo {
   email: string;
   nickname: string;
-  password: string;
+  password?: string;
   onboarding_completed: boolean;
   temperature_sensitivity: number;
   provider: string;
@@ -119,34 +119,32 @@ export const useUserStore = create<UserStore>()(
           const parsed = JSON.parse(
             typeof value === 'string' ? value : JSON.stringify(value)
           );
-          const mode = parsed.state?.persistMode;
-
+          const mode: PersistMode = parsed.state?.persistMode;
+        
           const base = { version: parsed.version };
-
+        
+          let stateToStore: Partial<UserStore> = { persistMode: mode };
+        
           if (mode === 'post-signup') {
-            localStorage.setItem(
-              name,
-              JSON.stringify({
-                ...base,
-                state: {
-                  user: parsed.state.user,
-                  persistMode: 'post-signup',
-                },
-              })
-            );
+            stateToStore = {
+              user: parsed.state.user,
+              persistMode: 'post-signup',
+            };
           } else {
-            localStorage.setItem(
-              name,
-              JSON.stringify({
-                ...base,
-                state: {
-                  tempUser: parsed.state.tempUser,
-                  onboardingInfo: parsed.state.onboardingInfo,
-                  persistMode: 'pre-signup',
-                },
-              })
-            );
+            stateToStore = {
+              tempUser: parsed.state.tempUser,
+              onboardingInfo: parsed.state.onboardingInfo,
+              persistMode: 'pre-signup',
+            };
           }
+        
+          localStorage.setItem(
+            name,
+            JSON.stringify({
+              ...base,
+              state: stateToStore,
+            })
+          );
         },
         removeItem: (name) => localStorage.removeItem(name),
       },

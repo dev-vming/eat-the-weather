@@ -10,7 +10,6 @@ import { api } from '@/lib/axios';
 function Onboarding() {
   const router = useRouter();
   const tempUser = useUserStore((state) => state.tempUser);
-  const { clearTempUser } = useUserStore();
 
   const handleStartOnboarding = () => {
     router.push('/onboarding/step1'); // Step1 페이지로 이동
@@ -21,7 +20,8 @@ function Onboarding() {
       await api.post('/auth/sign-up', {
         ...tempUser,
       });
-      clearTempUser();
+      useUserStore.getState().clearTempUser();
+      useUserStore.getState().setPersistMode('post-signup');
       alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
       router.push('/auth/login');
     } catch (error: any) {

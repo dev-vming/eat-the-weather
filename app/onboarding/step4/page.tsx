@@ -7,57 +7,70 @@ import { useEffect, useMemo } from 'react';
 
 function OnboardingStep4() {
   const router = useRouter();
-  const tempUser = useUserStore((state) => state.tempUser);
   const { setTempUser, clearTempUser, clearOnboardingInfo } = useUserStore();
 
-    const currTemperature = useUserStore(
-      (state) => state.onboardingInfo.currTemperature
-    );
-    const selectedClothes = useUserStore(
-      (state) => state.onboardingInfo.selectedClothes
-    );
-    const selectedFeeling = useUserStore(
-      (state) => state.onboardingInfo.selectedFeeling
-    );
-  
-    const weatherFit = useMemo(() => {
-      if (
-        currTemperature === null ||
-        selectedClothes === null ||
-        selectedClothes === undefined
-      ) return 0;
-    
-      if (selectedClothes === 0) return currTemperature >= 23 ? 0 : -1;
-      if (selectedClothes === 1)
-        return currTemperature < 15 ? -1 : currTemperature > 22 ? 1 : 0;
-      if (selectedClothes === 2)
-        return currTemperature < 6 ? -1 : currTemperature > 14 ? 1 : 0;
-      if (selectedClothes === 3) return currTemperature <= 15 ? 0 : 1;
+  const currTemperature = useUserStore(
+    (state) => state.onboardingInfo.currTemperature
+  );
+  const selectedClothes = useUserStore(
+    (state) => state.onboardingInfo.selectedClothes
+  );
+  const selectedFeeling = useUserStore(
+    (state) => state.onboardingInfo.selectedFeeling
+  );
+  const region_id = useUserStore(
+    (state) => state.onboardingInfo.selectedRegion.region_id
+  );
+
+  const weatherFit = useMemo(() => {
+    if (
+      currTemperature === null ||
+      selectedClothes === null ||
+      selectedClothes === undefined
+    )
       return 0;
-    }, [currTemperature, selectedClothes]);
-    
-    const temperature_sensitivity = useMemo(() => {
-      if (selectedFeeling === null) return 0;
-    
-      const feelingAdjusted = selectedFeeling - 1;
-      if (feelingAdjusted === weatherFit) return 0;
-      if (feelingAdjusted === 0) return weatherFit * -1;
-      return feelingAdjusted;
-    }, [selectedFeeling, weatherFit]);
-    
-    useEffect(() => {
-      setTempUser({ temperature_sensitivity });
-    }, [temperature_sensitivity, setTempUser]);
+
+    if (selectedClothes === 0) return currTemperature >= 23 ? 0 : -1;
+    if (selectedClothes === 1)
+      return currTemperature < 15 ? -1 : currTemperature > 22 ? 1 : 0;
+    if (selectedClothes === 2)
+      return currTemperature < 6 ? -1 : currTemperature > 14 ? 1 : 0;
+    if (selectedClothes === 3) return currTemperature <= 15 ? 0 : 1;
+    return 0;
+  }, [currTemperature, selectedClothes]);
+
+  const temperature_sensitivity = useMemo(() => {
+    if (selectedFeeling === null) return 0;
+
+    const feelingAdjusted = selectedFeeling - 1;
+    if (feelingAdjusted === weatherFit) return 0;
+    if (feelingAdjusted === 0) return weatherFit * -1;
+    return feelingAdjusted;
+  }, [selectedFeeling, weatherFit]);
+
+  useEffect(() => {
+    setTempUser({ temperature_sensitivity });
+  }, [temperature_sensitivity, setTempUser]);
 
   const handleButtonClick = async () => {
     try {
-      setTempUser({ onboarding_completed: true });
-      await api.post('/auth/sign-up', {
-        ...tempUser,
+      const userData = {
+        ...useUserStore.getState().tempUser,
+        onboarding_completed: true,
+      };
+
+      const uuid = await api.post('/auth/sign-up', userData);
+
+      await api.post('/region-favorite', {
+        user_id: uuid.data,
+        region_id,
+        is_primary: true,
       });
-      // TODO : uuid 기반으로 유저 정보 업데이트 하는 로직 필요
-      clearTempUser();
-      clearOnboardingInfo();
+
+      useUserStore.getState().clearTempUser();
+      useUserStore.getState().clearOnboardingInfo();
+      useUserStore.getState().setPersistMode('post-signup');
+
       alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
       router.push('/auth/login');
     } catch (error: any) {
