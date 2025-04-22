@@ -50,7 +50,12 @@ const defaultUser: User = {
   profile_image: '',
 };
 
+type PersistMode = 'pre-signup' | 'post-signup';
+
 type UserStore = {
+  persistMode: PersistMode;
+  setPersistMode: (mode: PersistMode) => void;
+
   tempUser: UserInfo;
   setTempUser: (data: Partial<UserInfo>) => void;
   clearTempUser: () => void;
@@ -97,15 +102,44 @@ export const useUserStore = create<UserStore>()(
           },
         })),
       clearUser: () => set({ user: { ...defaultUser } }),
+      persistMode: 'pre-signup',
+      setPersistMode: (mode) => set({ persistMode: mode }),
     }),
     {
       name: 'user-store',
-      partialize: (state) =>
-        ({
-          tempUser: state.tempUser,
-          onboardingInfo: state.onboardingInfo,
-          user: state.user,
-        } as Partial<UserStore>),
+      storage: {
+        getItem: (name) => {
+          if (typeof window === 'undefined') return null;
+          const raw = localStorage.getItem(name);
+          return raw ? JSON.parse(raw) : null;
+        },
+        setItem: (name, value) => {
+          const parsed = JSON.parse(typeof value === 'string' ? value : JSON.stringify(value));
+          const mode = parsed.state?.persistMode;
+
+          const base = { version: parsed.version };
+
+          if (mode === 'post-signup') {
+            localStorage.setItem(name, JSON.stringify({
+              ...base,
+              state: {
+                user: parsed.state.user,
+                persistMode: 'post-signup',
+              },
+            }));
+          } else {
+            localStorage.setItem(name, JSON.stringify({
+              ...base,
+              state: {
+                tempUser: parsed.state.tempUser,
+                onboardingInfo: parsed.state.onboardingInfo,
+                persistMode: 'pre-signup',
+              },
+            }));
+          }
+        },
+        removeItem: (name) => localStorage.removeItem(name),
+      },
     }
   )
 );

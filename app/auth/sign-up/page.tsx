@@ -41,7 +41,7 @@ export default function SignUpPage() {
   };
 
   const handleNext = () => {
-    setTempUser({ email, password, nickname });
+    setTempUser({ email, password, nickname, provider:'email' });
     router.push('/onboarding');
   }
 

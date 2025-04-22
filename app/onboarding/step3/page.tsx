@@ -11,14 +11,42 @@ function OnboardingStep3() {
 
   const [selectedFeeling, setSelectedFeeling] = useState<number | null>(null);
 
-  // TODO : 선택한 지역의 기온과 옷차림 비교 , 체감 온도와 비교해서 민감도 설정
+  const currTemperature = useUserStore(
+    (state) => state.onboardingInfo.currTemperature
+  );
+  const selectedClothes = useUserStore(
+    (state) => state.onboardingInfo.selectedClothes
+  );
+
+  // 이전 온보딩에서 받아온 기온과 옷차림 정보로 적합도 계산
+  const getWeatherFit = (temperature: number, clothes: number): number => {
+    if (clothes === 0) return temperature >= 23 ? 0 : -1;
+    if (clothes === 1) return temperature < 15 ? -1 : temperature > 22 ? 1 : 0;
+    if (clothes === 2) return temperature < 6 ? -1 : temperature > 14 ? 1 : 0;
+    if (clothes === 3) return temperature <= 15 ? 0 : 1;
+    return 0;
+  };
+  
+  // weatherFit과 selectedFeeling으로 민감도 계산
+  const calculateTemperatureSensitivity = (
+    feeling: number | null,
+    fit: number
+  ): number => {
+    if (feeling === null) return 0;
+    if (feeling === fit) return 0;
+    if (feeling === 0) return fit * -1;
+    return feeling;
+  };
+  
+  const weatherFit = getWeatherFit(currTemperature, selectedClothes);
+  const temperature_sensitivity = calculateTemperatureSensitivity(selectedFeeling, weatherFit);
 
   const handlePrevious = () => {
     router.push('/onboarding/step2');
   };
 
   const handleNext = () => {
-    setTempUser({ temperature_sensitivity : 0 });
+    setTempUser({ temperature_sensitivity });
     router.push('/onboarding/step4');
   };
 

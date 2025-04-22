@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 function OnboardingStep4() {
   const router = useRouter();
   const tempUser = useUserStore((state) => state.tempUser);
-  const { setTempUser, clearTempUser } = useUserStore();
+  const { setTempUser, clearTempUser, clearOnboardingInfo } = useUserStore();
 
   const handleButtonClick = async () => {
     try {
@@ -17,6 +17,7 @@ function OnboardingStep4() {
       });
       // TODO : uuid 기반으로 유저 정보 업데이트 하는 로직 필요
       clearTempUser();
+      clearOnboardingInfo();
       alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
       router.push('/auth/login');
     } catch (error: any) {

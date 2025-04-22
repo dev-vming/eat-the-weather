@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 function OnboardingStep2() {
   const router = useRouter();
-  const { setTempUser } = useUserStore();
+  const { setOnboardingInfo } = useUserStore();
 
   const [selectedClothes, setSelectedClothes] = useState<number|null>(null);
 
@@ -16,7 +16,7 @@ function OnboardingStep2() {
   };
 
   const handleNext = () => {
-    setTempUser({ selectedClothes: selectedClothes ?? undefined });
+    if(selectedClothes) setOnboardingInfo({ selectedClothes });
     router.push('/onboarding/step3');
   };
 
@@ -56,6 +56,7 @@ function OnboardingStep2() {
         <ChoiceButton
           className="flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={handleNext}
+          disabled={!selectedClothes}
         >
           다음
         </ChoiceButton>
