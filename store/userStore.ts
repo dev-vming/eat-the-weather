@@ -1,3 +1,4 @@
+import { Region } from '@/domain/entities/Region';
 import { create } from 'zustand';
 
 interface UserInfo {
@@ -8,7 +9,8 @@ interface UserInfo {
   temperature_sensitivity: number;
   provider: string;
   selectedClothes?: number;
-  selectedRegion?: string;
+  selectedRegion?: Region;
+  currTemperature?: number;
 }
 
 interface AdditionalInfo {
@@ -38,7 +40,6 @@ export const useUserStore = create<UserStore>((set) => ({
     onboarding_completed: false,
     temperature_sensitivity: 0,
     provider: '',
-    selectedClothes: 0,
   },
   setTempUser: (data) =>
     set((state) => ({
@@ -56,7 +57,6 @@ export const useUserStore = create<UserStore>((set) => ({
         onboarding_completed: false,
         temperature_sensitivity: 0,
         provider: '',
-        selectedClothes: 0,
       },
     }),
 
