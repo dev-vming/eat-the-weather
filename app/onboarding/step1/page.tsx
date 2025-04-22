@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 function OnboardingStep1 () {
   const router = useRouter();
-  const { setTempUser } = useUserStore();
+  const { setOnboardingInfo } = useUserStore();
 
   const [selectedRegion, setSelectedRegion] = useState<Region | undefined>(undefined);
   const temperature = 17;
@@ -21,7 +21,7 @@ function OnboardingStep1 () {
   };
 
   const handleNext = () => {
-    setTempUser({ selectedRegion, currTemperature:temperature });
+    setOnboardingInfo({ selectedRegion, currTemperature:temperature });
     router.push('/onboarding/step2');
   };
 
