@@ -1,3 +1,4 @@
+import { useUserStore } from '@/store/userStore';
 import axios from 'axios';
 
 interface RefreshResponse {
@@ -57,6 +58,8 @@ api.interceptors.response.use(
         // refresh 실패 시 로그아웃 처리
         localStorage.clear();
         sessionStorage.clear();
+        useUserStore.getState().clearUser();
+        useUserStore.getState().setPersistMode('pre-signup');
         window.location.href = '/auth/login';
         return Promise.reject(refreshError);
       }
