@@ -41,9 +41,8 @@ export default function LoginPage() {
       }
 
       const userRes = await api.get<User>(`/user/${email}`);
-      console.log(userRes)
       
-      useUserStore.getState().setUser(userRes.data);
+      useUserStore.getState().setUser({...userRes.data,isAuthenticated:true});
       useUserStore.getState().setPersistMode('post-signup');
 
       alert('로그인 성공!');

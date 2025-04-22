@@ -14,6 +14,7 @@ interface UserInfo {
 interface AdditionalInfo {
   user_id: string;
   profile_image: string;
+  isAuthenticated: boolean;
 }
 
 interface OnboardingInfo {
@@ -50,6 +51,7 @@ const defaultUser: User = {
   ...defaultUserInfo,
   user_id: '',
   profile_image: '',
+  isAuthenticated: false,
 };
 
 type PersistMode = 'pre-signup' | 'post-signup';
