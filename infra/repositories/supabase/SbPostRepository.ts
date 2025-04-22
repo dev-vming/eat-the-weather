@@ -3,6 +3,7 @@
 import { supabase } from './Sbclient';
 import { PostRepository } from '@/domain/repositories/PostRepository';
 import { Post } from '@/domain/entities/Post';
+import { PostView } from '@/domain/entities/PostView';
 import { PostFilter } from '@/domain/repositories/filters/PostFilter';
 
 /**
@@ -40,37 +41,32 @@ export const SbPostRepository: PostRepository = {
     };
   },
 
-  async update(post: Post): Promise<void> {
-    const { error } = await supabase
-      .from('posts')
-      .update({
-        content: post.content,
-        post_image: post.post_image,
-        temperature_sensitivity: post.temperature_sensitivity,
-        has_outfit_tag: post.has_outfit_tag,
-        has_weather_tag: post.has_weather_tag,
-      })
-      .eq('post_id', post.post_id);
+  async getAll(filter: PostFilter): Promise<PostView[]> {
+    let query = supabase.from('post_view').select('*');
 
-    if (error) throw new Error(`Error updating post: ${error.message}`);
-  },
-  async getAll(filter: PostFilter): Promise<Post[]> {
-    let query = supabase.from('post').select('*');
-
-    //  지역 필터
+    // 해당 지역의 게시글만 조회
     if (filter.region_id) {
       query = query.eq('region_id', filter.region_id);
     }
 
-    //  유저 기준 필터
+    // 특정 유저의 게시글만 조회 (ex. 내 게시글 보기)
     if (filter.user_id) {
       query = query.eq('user_id', filter.user_id);
     }
 
-    //  민감도 필터링
+    // 최신순 or 인기순 정렬
+    if (filter.order_by) {
+      if (filter.order_by === 'created_at') {
+        query = query.order('created_at', { ascending: false }); // 최신순
+      } else if (filter.order_by === 'like_count') {
+        query = query.order('like_count', { ascending: false }); // 인기순
+      }
+    }
+
+    // 민감도 일치하는 게시글만
     if (
       filter.only_sensitive_match &&
-      typeof filter.my_temperature_sensitivity === 'number'
+      filter.my_temperature_sensitivity !== undefined
     ) {
       query = query.eq(
         'temperature_sensitivity',
@@ -78,98 +74,47 @@ export const SbPostRepository: PostRepository = {
       );
     }
 
-    //  태그 포함 여부 필터링 (반정규화 기반)
+    // #옷차림 태그가 있는 게시글만
     if (filter.has_outfit_tag !== undefined) {
       query = query.eq('has_outfit_tag', filter.has_outfit_tag);
     }
+
+    // #날씨 태그가 있는 게시글만
     if (filter.has_weather_tag !== undefined) {
       query = query.eq('has_weather_tag', filter.has_weather_tag);
     }
 
-    //  태그 ID 기반 필터링 (post_tag 테이블 조인 필요)
-    if (filter.tag_ids && filter.tag_ids.length > 0) {
-      const postIds = await getPostIdsByTagIds(filter.tag_ids);
-      query = query.in('post_id', postIds);
-    }
-
-    //  정렬 기준
-    if (filter.order_by) {
-      query = query.order(filter.order_by, {
-        ascending: filter.ascending ?? false,
-      });
-    }
-
-    //  개수 제한
+    // 최대 조회 개수 제한 (무한스크롤 단위)
     if (filter.limit) {
       query = query.limit(filter.limit);
     }
 
-    const { data, error } = await query;
-
-    if (error || !data) throw new Error('게시글 필터 조회 실패');
-
-    return data as Post[];
-  },
-
-  async delete(postId: string): Promise<void> {
-    const { error } = await supabase
-      .from('posts')
-      .delete()
-      .eq('post_id', postId);
-    if (error) throw new Error(`Error deleting post: ${error.message}`);
-  },
-
-  async getById(postId: string): Promise<Post | null> {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('post_id', postId)
-      .single();
-    if (error) throw new Error(`Error fetching post by ID: ${error.message}`);
-    return data as Post | null;
-  },
-
-  async getByUserId(userId: string): Promise<Post[]> {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('user_id', userId);
-
-    if (error)
-      throw new Error(`Error fetching posts by user ID: ${error.message}`);
-
-    return data as Post[];
-  },
-
-  async getPopular(regionId?: string, limit?: number): Promise<Post[]> {
-    let query = supabase.from('posts').select('*').order('like_count', {
-      ascending: false,
-    });
-
-    if (regionId) {
-      query = query.eq('region_id', regionId);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
+    // 커서 기준 이전(post.created_at < cursor) 게시글만 조회 (무한스크롤)
+    if (filter.cursor) {
+      query = query.lt('created_at', filter.cursor);
     }
 
     const { data, error } = await query;
 
-    if (error)
-      throw new Error(`Error fetching popular posts: ${error.message}`);
+    if (error || !data) throw new Error('게시글 조회 실패');
 
-    return data as Post[];
+    return data.map(
+      (post): PostView => ({
+        post_id: post.post_id,
+        content: post.content,
+        createdAt: post.created_at,
+        updatedAt: post.updated_at,
+        has_outfit_tag: post.has_outfit_tag,
+        has_weather_tag: post.has_weather_tag,
+        temperature_sensitivity: post.temperature_sensitivity,
+        post_image: post.post_image,
+        like_count: post.like_count,
+        user: {
+          user_id: post.user.user_id,
+          nickname: post.user.nickname,
+          profile_image: post.user.profile_image,
+        },
+      })
+    );
   },
 };
-
-async function getPostIdsByTagIds(tagIds: string[]): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('post_tag')
-    .select('post_id')
-    .in('tag_id', tagIds);
-
-  if (error || !data) throw new Error('태그 기반 게시글 ID 조회 실패');
-
-  return [...new Set(data.map((d) => d.post_id))];
-}
