@@ -3,9 +3,9 @@ export interface EmailLoginRequestDto {
   password: string;
 }
 
-export interface EmailSignupRequestDto {
+export interface SignupRequestDto {
   email: string;
-  password: string;
+  password?: string;
   nickname: string;
   onboarding_completed: boolean;
   temperature_sensitivity: number;
