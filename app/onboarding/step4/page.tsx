@@ -8,6 +8,9 @@ function OnboardingStep4() {
   const router = useRouter();
   const tempUser = useUserStore((state) => state.tempUser);
   const { setTempUser, clearTempUser, clearOnboardingInfo } = useUserStore();
+  const temperatureSensitivity = useUserStore(
+    (state) => state.tempUser.temperature_sensitivity
+  );
 
   const handleButtonClick = async () => {
     try {
@@ -28,8 +31,11 @@ function OnboardingStep4() {
   return (
     <div className="flex flex-col items-center justify-center h-screen px-6 bg-white">
       <p className="text-center text-lg font-semibold mb-4">
-        너는 더위를 / 추위를 <br />
-        많이 타는 편이구나?!
+        {temperatureSensitivity === 1
+          ? '더위를 잘 느끼는 편이구나?! ☀️'
+          : temperatureSensitivity === -1
+            ? '추위를 잘 느끼는 편이구나?! ❄️'
+            : '기온 변화에 잘 적응하는 편이네! 😊'}
       </p>
       <p className="text-center text-sm text-gray-500 mb-6">
         앞으로 이 결과를 바탕으로 <br />
