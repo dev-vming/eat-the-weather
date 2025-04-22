@@ -56,7 +56,7 @@ function OnboardingStep2() {
         <ChoiceButton
           className="flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={handleNext}
-          disabled={!selectedClothes}
+          disabled={selectedClothes===null}
         >
           다음
         </ChoiceButton>

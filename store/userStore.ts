@@ -20,6 +20,7 @@ interface OnboardingInfo {
   selectedRegion: Region;
   currTemperature: number;
   selectedClothes: number;
+  selectedFeeling: number;
 }
 
 type User = UserInfo & AdditionalInfo;
@@ -42,6 +43,7 @@ const defaultOnboardingInfo: OnboardingInfo = {
   },
   currTemperature: 0,
   selectedClothes: 0,
+  selectedFeeling: 0,
 };
 
 const defaultUser: User = {
@@ -114,28 +116,36 @@ export const useUserStore = create<UserStore>()(
           return raw ? JSON.parse(raw) : null;
         },
         setItem: (name, value) => {
-          const parsed = JSON.parse(typeof value === 'string' ? value : JSON.stringify(value));
+          const parsed = JSON.parse(
+            typeof value === 'string' ? value : JSON.stringify(value)
+          );
           const mode = parsed.state?.persistMode;
 
           const base = { version: parsed.version };
 
           if (mode === 'post-signup') {
-            localStorage.setItem(name, JSON.stringify({
-              ...base,
-              state: {
-                user: parsed.state.user,
-                persistMode: 'post-signup',
-              },
-            }));
+            localStorage.setItem(
+              name,
+              JSON.stringify({
+                ...base,
+                state: {
+                  user: parsed.state.user,
+                  persistMode: 'post-signup',
+                },
+              })
+            );
           } else {
-            localStorage.setItem(name, JSON.stringify({
-              ...base,
-              state: {
-                tempUser: parsed.state.tempUser,
-                onboardingInfo: parsed.state.onboardingInfo,
-                persistMode: 'pre-signup',
-              },
-            }));
+            localStorage.setItem(
+              name,
+              JSON.stringify({
+                ...base,
+                state: {
+                  tempUser: parsed.state.tempUser,
+                  onboardingInfo: parsed.state.onboardingInfo,
+                  persistMode: 'pre-signup',
+                },
+              })
+            );
           }
         },
         removeItem: (name) => localStorage.removeItem(name),

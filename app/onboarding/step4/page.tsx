@@ -3,14 +3,51 @@ import ChoiceButton from '@/app/components/ChoiceButton';
 import { api } from '@/lib/axios';
 import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
 
 function OnboardingStep4() {
   const router = useRouter();
   const tempUser = useUserStore((state) => state.tempUser);
   const { setTempUser, clearTempUser, clearOnboardingInfo } = useUserStore();
-  const temperatureSensitivity = useUserStore(
-    (state) => state.tempUser.temperature_sensitivity
-  );
+
+    const currTemperature = useUserStore(
+      (state) => state.onboardingInfo.currTemperature
+    );
+    const selectedClothes = useUserStore(
+      (state) => state.onboardingInfo.selectedClothes
+    );
+    const selectedFeeling = useUserStore(
+      (state) => state.onboardingInfo.selectedFeeling
+    );
+  
+    const weatherFit = useMemo(() => {
+      if (
+        currTemperature === null ||
+        selectedClothes === null ||
+        selectedClothes === undefined
+      ) return 0;
+    
+      if (selectedClothes === 0) return currTemperature >= 23 ? 0 : -1;
+      if (selectedClothes === 1)
+        return currTemperature < 15 ? -1 : currTemperature > 22 ? 1 : 0;
+      if (selectedClothes === 2)
+        return currTemperature < 6 ? -1 : currTemperature > 14 ? 1 : 0;
+      if (selectedClothes === 3) return currTemperature <= 15 ? 0 : 1;
+      return 0;
+    }, [currTemperature, selectedClothes]);
+    
+    const temperature_sensitivity = useMemo(() => {
+      if (selectedFeeling === null) return 0;
+    
+      const feelingAdjusted = selectedFeeling - 1;
+      if (feelingAdjusted === weatherFit) return 0;
+      if (feelingAdjusted === 0) return weatherFit * -1;
+      return feelingAdjusted;
+    }, [selectedFeeling, weatherFit]);
+    
+    useEffect(() => {
+      setTempUser({ temperature_sensitivity });
+    }, [temperature_sensitivity, setTempUser]);
 
   const handleButtonClick = async () => {
     try {
@@ -31,9 +68,9 @@ function OnboardingStep4() {
   return (
     <div className="flex flex-col items-center justify-center h-screen px-6 bg-white">
       <p className="text-center text-lg font-semibold mb-4">
-        {temperatureSensitivity === 1
+        {temperature_sensitivity === 1
           ? '더위를 잘 느끼는 편이구나?! ☀️'
-          : temperatureSensitivity === -1
+          : temperature_sensitivity === -1
             ? '추위를 잘 느끼는 편이구나?! ❄️'
             : '기온 변화에 잘 적응하는 편이네! 😊'}
       </p>
