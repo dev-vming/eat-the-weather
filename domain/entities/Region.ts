@@ -1,6 +1,6 @@
 export interface Region {
   region_id: string; // UUID
-  region_name: string; // Text
-  lat: number; // Numeric
-  lon: number; // Numeric
+  name: string; // Text
+  lat: number; // float8
+  lon: number; // float8
 }
