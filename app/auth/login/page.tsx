@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
 import { Label } from '@/components/ui/label';
+import KakaoLoginButton from '@/app/components/KakaoButton';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -90,9 +91,7 @@ export default function LoginPage() {
         이메일 로그인
       </Button>
 
-      <Button variant="ghost" className="w-100 h-11 m-2 bg-amber-200 md:w-90">
-        카카오 로그인
-      </Button>
+      <KakaoLoginButton/>
 
       <Link href="/auth/sign-up" className={Style.Link}>
         회원가입

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
+import KakaoLoginButton from '@/app/components/KakaoButton';
 
 interface CheckResponse {
   available: boolean;
@@ -127,9 +128,7 @@ export default function SignUpPage() {
         다음
       </Button>
 
-      <Button variant="ghost" className="w-100 h-11 m-2 bg-amber-200 md:w-90">
-        카카오 회원가입
-      </Button>
+      <KakaoLoginButton />
       <Link href="/auth/login" className="font-medium">
         로그인
       </Link>
