@@ -52,7 +52,7 @@ export default function PostPage() {
             <Link href={`/posts/${post.post_id}`}>
               <PostItem
                 content={post.content}
-                date={new Date(post.createdAt).toLocaleString('ko-KR', {
+                date={new Date(post.created_at).toLocaleString('ko-KR', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
