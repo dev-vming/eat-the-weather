@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
 import KakaoLoginButton from '@/app/components/KakaoButton';
+import { useUserStore } from '@/store/userStore';
 
 interface CheckResponse {
   available: boolean;
@@ -13,6 +14,7 @@ interface CheckResponse {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { setTempUser } = useUserStore();
 
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
@@ -39,23 +41,10 @@ export default function SignUpPage() {
     }
   };
 
-  const handleSignUp = async () => {
-    try {
-      await api.post('/auth/sign-up', {
-        email,
-        password,
-        nickname,
-        onboarding_completed: false,
-        temperature_sensitivity: 0,
-        provider: 'email',
-      });
-
-      alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
-      router.push('/auth/login');
-    } catch (error: any) {
-      alert(error.response?.data?.message || '회원가입 실패 🥲');
-    }
-  };
+  const handleNext = () => {
+    setTempUser({ email, password, nickname, provider:'email' });
+    router.push('/onboarding');
+  }
 
   const resetCheck = (type: 'email' | 'nickname') => {
     if (type === 'email') setIsEmailChecked(false);
@@ -118,12 +107,12 @@ export default function SignUpPage() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      {/* 회원가입 버튼 */}
+      {/* 온보딩으로 이동하는 버튼 */}
       <Button
         variant="ghost"
         className="w-100 h-11 m-2 bg-blue-900 text-white md:w-90"
         disabled={!isEmailChecked || !isNicknameChecked || !password}
-        onClick={handleSignUp}
+        onClick={handleNext}
       >
         다음
       </Button>

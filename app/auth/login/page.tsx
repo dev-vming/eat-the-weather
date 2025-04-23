@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
 import { Label } from '@/components/ui/label';
 import KakaoLoginButton from '@/app/components/KakaoButton';
+import { User } from '@supabase/supabase-js';
+import { useUserStore } from '@/store/userStore';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,6 +40,11 @@ export default function LoginPage() {
         sessionStorage.setItem('accessToken', accessToken);
         sessionStorage.setItem('refreshToken', refreshToken);
       }
+
+      const userRes = await api.get<User>(`/user/${email}`);
+      
+      useUserStore.getState().setUser({...userRes.data,isAuthenticated:true});
+      useUserStore.getState().setPersistMode('post-signup');
 
       alert('로그인 성공!');
       router.push('/');

@@ -2,6 +2,8 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import LinkItem from '../components/LinkItem';
+import { useUserStore } from '@/store/userStore';
+import { useRouter } from 'next/navigation';
 
 const linkItems = [
   { href: '/posts', label: '작성한 게시물' },
@@ -9,16 +11,31 @@ const linkItems = [
   { href: '/sensitivity', label: '날씨 민감도 관리' },
   { href: '/regions', label: '지역 관리' },
   { href: '/account', label: '계정 관리' },
-  { href: '/logout', label: '로그아웃' },
+  { href: '', label: '로그아웃' },
 ];
 
 export default function ProfilePage() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+
+    useUserStore.getState().clearUser();
+    useUserStore.getState().setPersistMode('pre-signup');
+    alert('로그아웃 되었습니다 😇');
+
+    router.push('/');
+  };
+
   return (
     <div className="min-h-screen px-4 py-6 bg-white flex flex-col">
       <h1 className="text-lg font-bold mb-6">마이페이지</h1>
       <div className="flex items-center gap-4 mb-8 mt-10">
         <Avatar className="w-12 h-12">
-          <AvatarImage src="/images/user.png" alt="유저 아바타" />
+          <AvatarImage src="/images/user2.png" alt="유저 아바타" />
           <AvatarFallback>프로필</AvatarFallback>
         </Avatar>
         <div>
@@ -28,9 +45,23 @@ export default function ProfilePage() {
       </div>
 
       <div className="divide-y border-y-2 border-gray-200">
-        {linkItems.map((item) => (
-          <LinkItem key={item.href + item.label} href={item.href} label={item.label} />
-        ))}
+        {linkItems.map((item) =>
+          item.label === '로그아웃' ? (
+            <div onClick={handleLogout}>
+              <LinkItem
+                key={item.href + item.label}
+                href={item.href}
+                label={item.label}
+              />
+            </div>
+          ) : (
+            <LinkItem
+              key={item.href + item.label}
+              href={item.href}
+              label={item.label}
+            />
+          )
+        )}
       </div>
     </div>
   );

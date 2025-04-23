@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Heart } from 'lucide-react';
 import SensitivityBadge from './SensitivityBadge';
 import PostUserBox from './PostUserBox';
@@ -27,15 +27,18 @@ export default function PostItem({
   detail,
 }: PostProps) {
   return (
-    <div className={`px-4 py-5 ${detail?"":"cursor-pointer hover:bg-gray-50"}`}>
+    <div
+      className={`px-4 py-5 ${detail ? '' : 'cursor-pointer hover:bg-gray-50'}`}
+    >
       {/* 프로필, 좋아요 영역 */}
       <div className="flex justify-between mb-3">
         <PostUserBox nickname={nickname} date={date} />
         <div className="flex items-center justify-center text-gray-500 gap-1">
-          <Heart className={`w-4 h-4 ${liked ? 'fill-rose-400 text-rose-400' : ''}`} />
+          <Heart
+            className={`w-4 h-4 ${liked ? 'fill-rose-400 text-rose-400' : ''}`}
+          />
           <p className="text-sm font-semibold">{likeCount}</p>
         </div>
-        
       </div>
       <div className="flex items-center justify-between mb-4">
         {/* 뱃지 / 태그 영역 */}
