@@ -22,7 +22,7 @@ export default function KakaoLoginButton({ state }: KakaoLoginButtonProps) {
       variant="ghost"
       className="w-100 h-11 m-2 bg-amber-200 md:w-90"
     >
-      카카오 로그인
+      {state==="login" ? "카카오 로그인" : "카카오 회원가입"}
     </Button>
   );
 }

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { SbUserRepository } from '@/infra/repositories/supabase/SbUserRepository';
 import { KakaoUserDto } from '@/application/usecases/auth/dto/KakaoAuthDto';
-import { kakaoEmailCheckUsecase } from '@/application/usecases/auth/KakaoEmailCheckUsecase';
+import { kakaoLoginUsecase } from '@/application/usecases/auth/KakaoLoginUsecase';
+import { kakaoSignupUsecase } from '@/application/usecases/auth/KakaoSignupUsecase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,9 +16,14 @@ export async function POST(req: NextRequest) {
       redirectUri: process.env.KAKAO_REDIRECT_URI!,
     };
 
+    if (from === 'login') {
+      const { user, accessToken, refreshToken } = await kakaoLoginUsecase(SbUserRepository(), dto);
+      return NextResponse.json({ user, accessToken, refreshToken }, { status: 200 });
+    }
+
     if (from === 'signup') {
-      const { kakaoUser } = await kakaoEmailCheckUsecase(SbUserRepository(), dto);
-      return NextResponse.json({ kakaoUser }, { status: 200 });
+      const { user } = await kakaoSignupUsecase(SbUserRepository(), dto);
+      return NextResponse.json({ user }, { status: 200 });
     }
 
     return NextResponse.json({ message: '유효하지 않은 from 파라미터입니다.' }, { status: 400 });

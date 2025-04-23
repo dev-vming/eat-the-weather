@@ -27,24 +27,38 @@ export default function SignUpPage() {
     const value = type === 'email' ? email : nickname;
 
     try {
-      const res = await api.post<CheckResponse>(`/auth/check-${type}`, { [type]: value });
+      const res = await api.post<CheckResponse>(`/auth/check-${type}`, {
+        [type]: value,
+      });
 
       if (res.data.available) {
         alert(`사용 가능한 ${type === 'email' ? '이메일' : '닉네임'}입니다!`);
         type === 'email' ? setIsEmailChecked(true) : setIsNicknameChecked(true);
       } else {
-        alert(`이미 사용 중인 ${type === 'email' ? '이메일' : '닉네임'}입니다.`);
-        type === 'email' ? setIsEmailChecked(false) : setIsNicknameChecked(false);
+        alert(
+          `이미 사용 중인 ${type === 'email' ? '이메일' : '닉네임'}입니다.`
+        );
+        type === 'email'
+          ? setIsEmailChecked(false)
+          : setIsNicknameChecked(false);
       }
     } catch (error: any) {
       alert(error.response?.data?.message || `${type} 중복 확인 실패`);
     }
   };
 
-  const handleNext = () => {
-    setTempUser({ email, password, nickname, provider:'email' });
+  const handleNext = async () => {
+    const {data} = await api.post('/auth/sign-up', {
+      email,
+      password,
+      nickname,
+      onboarding_completed: false,
+      temperature_sensitivity :0,
+      provider: 'email',
+    });
+    setTempUser({ user_id: data as string });
     router.push('/onboarding');
-  }
+  };
 
   const resetCheck = (type: 'email' | 'nickname') => {
     if (type === 'email') setIsEmailChecked(false);
@@ -117,10 +131,7 @@ export default function SignUpPage() {
         다음
       </Button>
 
-      <KakaoLoginButton state={"signup"} />
-      <Link href="/auth/login" className="font-medium">
-        로그인
-      </Link>
+      <KakaoLoginButton state={'signup'} />
     </div>
   );
 }
