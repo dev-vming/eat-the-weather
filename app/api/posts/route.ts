@@ -3,6 +3,8 @@ import { SbPostRepository } from '@/infra/repositories/supabase/SbPostRepository
 import { GetAllPostsUsecase } from '@/application/usecases/post/GetAllPostsUsecase';
 import { GetAllPostsQueryDto } from '@/application/usecases/post/dto/GetAllPostsQueryDto';
 import { PostFilter } from '@/domain/repositories/filters/PostFilter';
+import { CreatePostRequestDto } from '@/application/usecases/post/dto/PostDto.ts';
+import { CreatePostUsecase } from '@/application/usecases/post/CreatePostUsecase';
 
 export async function GET(req: NextRequest) {
   try {
@@ -38,6 +40,23 @@ export async function GET(req: NextRequest) {
     console.error('게시글 목록 조회 실패:', error);
     return NextResponse.json(
       { message: error.message ?? '서버 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const postData = body as CreatePostRequestDto;
+
+    const newPost = await CreatePostUsecase(SbPostRepository, postData);
+
+    return NextResponse.json({ post: newPost }, { status: 201 });
+  } catch (error: any) {
+    console.error('[POST_CREATE_ERROR]', error);
+    return NextResponse.json(
+      { message: error.message ?? '게시글 생성 중 오류 발생' },
       { status: 500 }
     );
   }

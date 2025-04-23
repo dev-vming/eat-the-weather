@@ -1,10 +1,10 @@
-import { PostCreateDto } from '@/application/usecases/post/dto/PostCreateDto';
+import { CreatePostRequestDto } from '@/application/usecases/post/dto/PostDto.ts';
 import { Post } from '../entities/Post';
 import { PostFilter } from './filters/PostFilter';
 import { PostView } from '../entities/PostView';
 
 export interface PostRepository {
-  create(post: PostCreateDto): Promise<Post>;
+  create(post: CreatePostRequestDto): Promise<Post>;
   update(post: Post): Promise<void>;
   delete(postId: string): Promise<void>;
 

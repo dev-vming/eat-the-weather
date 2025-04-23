@@ -80,7 +80,7 @@ export default function PostPage() {
       {/* ✅ 글쓰기 버튼 */}
       <button
         className="absolute bottom-18 right-8 z-50 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors cursor-pointer"
-        onClick={() => router.push('/posts/create')}
+        onClick={() => router.push('/posts/new')}
       >
         <Plus className="w-6 h-6" />
       </button>
