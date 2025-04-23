@@ -60,4 +60,24 @@ export const SbUserRepository = (): UserRepository => ({
       profile_image: data.profile_image,
     };
   },
+  async update(user_id, dto) {
+    const { data, error } = await supabase
+      .from('user')
+      .update(dto)
+      .eq('user_id', user_id)
+      .select()
+      .single();
+
+    if (error || !data) throw new Error('유저 정보 수정 실패');
+
+    return {
+      user_id: data.user_id,
+      email: data.email,
+      nickname: data.nickname,
+      provider: data.provider,
+      onboarding_completed: data.onboarding_completed,
+      temperature_sensitivity: data.temperature_sensitivity,
+      profile_image: data.profile_image,
+    };
+  },
 });

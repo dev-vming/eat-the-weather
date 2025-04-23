@@ -12,3 +12,4 @@ export interface SignupRequestDto {
   temperature_sensitivity: number;
   provider: "kakao" | "email";
 }
+
