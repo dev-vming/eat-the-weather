@@ -24,7 +24,7 @@ export default function ProfilePage() {
     sessionStorage.removeItem('refreshToken');
 
     useUserStore.getState().clearUser();
-    useUserStore.getState().setPersistMode('pre-signup');
+    useUserStore.getState().setPersistMode('pre-onboarding');
     alert('로그아웃 되었습니다 😇');
 
     router.push('/');

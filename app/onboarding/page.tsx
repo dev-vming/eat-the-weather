@@ -5,11 +5,10 @@ import React from 'react';
 import ChoiceButton from '@/app/components/ChoiceButton';
 import Image from 'next/image';
 import { useUserStore } from '@/store/userStore';
-import { api } from '@/lib/axios';
+
 
 function Onboarding() {
   const router = useRouter();
-  const tempUser = useUserStore((state) => state.tempUser);
 
   const handleStartOnboarding = () => {
     router.push('/onboarding/step1'); // Step1 페이지로 이동
@@ -17,15 +16,12 @@ function Onboarding() {
 
   const handleSkipOnboarding = async () => {
     try {
-      await api.post('/auth/sign-up', {
-        ...tempUser,
-      });
       useUserStore.getState().clearTempUser();
-      useUserStore.getState().setPersistMode('post-signup');
-      alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
+      useUserStore.getState().clearOnboardingInfo();
+      useUserStore.getState().setPersistMode('post-onboarding');
       router.push('/auth/login');
     } catch (error: any) {
-      alert(error.response?.data?.message || '회원가입 실패 🥲');
+      alert(error.response?.data?.message);
     }
   };
 

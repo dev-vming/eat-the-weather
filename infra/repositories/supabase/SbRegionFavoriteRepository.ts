@@ -41,7 +41,7 @@ export const SbRegionFavoriteRepository = (): RegionFavoriteRepogitory => ({
   },
   async getByUserId(user_id) {
     const { data, error } = await supabase
-      .from('user_region_favorite_view')
+      .from('user_favorite_regions_view')
       .select('*')
       .eq('user_id', user_id);
 
