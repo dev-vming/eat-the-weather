@@ -1,163 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useFavoriteRegion } from '@/lib/hooks/useFavoriteRegion';
+import { useWeather } from '@/lib/hooks/useWeather';
+
+
+import { useState, useEffect } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Card } from "@/components/ui/card"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Customized } from "recharts"
 
-const hourlyData = [
-  {
-    "dt_txt": "2025-04-18 00:00:00",
-    "main": {
-      "temp": 12.3,
-      "feels_like": 11.1,
-      "temp_min": 11.5,
-      "temp_max": 12.8,
-      "pressure": 1012,
-      "humidity": 82
-    },
-    "weather": [
-      {
-        "main": "Clear",
-        "description": "clear sky",
-        "icon": "01n"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 03:00:00",
-    "main": {
-      "temp": 10.8,
-      "feels_like": 9.7,
-      "temp_min": 10.0,
-      "temp_max": 11.2,
-      "pressure": 1013,
-      "humidity": 85
-    },
-    "weather": [
-      {
-        "main": "Clear",
-        "description": "clear sky",
-        "icon": "01n"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 06:00:00",
-    "main": {
-      "temp": 11.5,
-      "feels_like": 10.3,
-      "temp_min": 11.0,
-      "temp_max": 12.0,
-      "pressure": 1014,
-      "humidity": 80
-    },
-    "weather": [
-      {
-        "main": "Clouds",
-        "description": "few clouds",
-        "icon": "02n"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 09:00:00",
-    "main": {
-      "temp": 15.6,
-      "feels_like": 15.0,
-      "temp_min": 14.8,
-      "temp_max": 16.3,
-      "pressure": 1016,
-      "humidity": 70
-    },
-    "weather": [
-      {
-        "main": "Clouds",
-        "description": "scattered clouds",
-        "icon": "03d"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 12:00:00",
-    "main": {
-      "temp": 19.2,
-      "feels_like": 18.9,
-      "temp_min": 18.5,
-      "temp_max": 20.0,
-      "pressure": 1018,
-      "humidity": 60
-    },
-    "weather": [
-      {
-        "main": "Clouds",
-        "description": "broken clouds",
-        "icon": "04d"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 15:00:00",
-    "main": {
-      "temp": 20.7,
-      "feels_like": 20.1,
-      "temp_min": 19.5,
-      "temp_max": 21.3,
-      "pressure": 1016,
-      "humidity": 58
-    },
-    "weather": [
-      {
-        "main": "Rain",
-        "description": "light rain",
-        "icon": "10d"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 18:00:00",
-    "main": {
-      "temp": 17.0,
-      "feels_like": 16.4,
-      "temp_min": 16.0,
-      "temp_max": 17.8,
-      "pressure": 1013,
-      "humidity": 72
-    },
-    "weather": [
-      {
-        "main": "Rain",
-        "description": "moderate rain",
-        "icon": "10n"
-      }
-    ]
-  },
-  {
-    "dt_txt": "2025-04-18 21:00:00",
-    "main": {
-      "temp": 14.2,
-      "feels_like": 13.3,
-      "temp_min": 13.5,
-      "temp_max": 14.9,
-      "pressure": 1011,
-      "humidity": 78
-    },
-    "weather": [
-      {
-        "main": "Clouds",
-        "description": "overcast clouds",
-        "icon": "04n"
-      }
-    ]
-  }
-];
-// 📊 차트에 맞는 데이터 가공
-const chartData = hourlyData.map((item) => ({
-  time: item.dt_txt.slice(11, 16),
-  temp_min: item.main.temp_min,
-  temp_max: item.main.temp_max
-}))
+import { HourlyWeatherEntry } from "@/lib/types/weather"
 
 
 const chartConfig = {
@@ -172,23 +25,55 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function Hourly() {
-  const [selectedHour, setSelectedHour] = useState<any | null>(
-    hourlyData.find((d) => d.dt_txt.slice(11, 16) === "09:00") || null
-  )
+  const { selectedRegion } = useFavoriteRegion();
+  const { lat, lon } = selectedRegion ?? {};
+  const { data: weatherData, isLoading } = useWeather(lat, lon);
+  const [selectedHour, setSelectedHour] = useState<any | null>();
+
+  const now = new Date();
+  const today = new Date().toISOString().slice(0, 10);
+  const hourlyData: HourlyWeatherEntry[] = weatherData?.list?.filter((item) =>
+    item.dt_txt.startsWith(today)
+  ) ?? [];
+
+  const chartData = hourlyData.map((item) => {
+    const itemTime = new Date(item.dt_txt);
+    const isAfter3Hours = itemTime.getTime() - now.getTime() >= -3 * 60 * 60 * 1000; // 3시간 이내거나 이후
+
+    return {
+      time: item.dt_txt.slice(11, 16),
+      temp_min: item.main.temp_min + (isAfter3Hours ? 5 : 0),
+      temp_max: item.main.temp_max + (isAfter3Hours ? 5 : 0),
+      isAfter3Hours,
+      raw: item,
+    };
+  });
+
+  useEffect(() => {
+    const init = async () => {
+      const defaultHour = hourlyData.find((d) => d.dt_txt.slice(11, 16) === "09:00");
+      if (defaultHour) {
+        setSelectedHour(defaultHour);
+      }
+    };
+
+    if (!selectedHour && hourlyData.length > 0) {
+      init();
+    }
+  }, [hourlyData]);
+
+
   return (
     <div className="max-w-md mx-auto w-full">
       <Card className="w-full bg-white rounded-lg border overflow-hidden">
-
         <ChartContainer config={chartConfig} className="h-[18rem] w-full">
           <AreaChart
             data={chartData}
             margin={{ top: 40, right: 15, left: 0, bottom: 0 }}
             onClick={(e) => {
               if (e && e.activeLabel) {
-                const selected = hourlyData.find(
-                  (d) => d.dt_txt.slice(11, 16) === e.activeLabel
-                )
-                setSelectedHour(selected)
+                const found = chartData.find((d) => d.time === e.activeLabel);
+                setSelectedHour(found?.raw ?? null);
               }
             }}
           >
@@ -203,7 +88,7 @@ export function Hourly() {
               tickMargin={10}
               tickLine={false}
               axisLine={false}
-              domain={["dataMin - 2", "dataMax + 2"]}
+              domain={["dataMin", "dataMax + 2"]}
             />
             <ChartTooltip
               cursor={false}
@@ -231,7 +116,7 @@ export function Hourly() {
               component={(props: any) => {
                 const xScale = (Object.values(props.xAxisMap)[0] as { scale: (val: any) => number })?.scale;
                 const yScale = (Object.values(props.yAxisMap)[0] as { scale: (val: any) => number })?.scale;
-              
+
                 if (typeof xScale !== "function" || typeof yScale !== "function") return null;
 
                 return (
@@ -274,9 +159,19 @@ export function Hourly() {
             <div className="font-semibold text-base mb-1">
               {selectedHour.dt_txt.slice(11, 16)} 날씨 정보
             </div>
-            <div className="mt-3">🌡️ 최고: {selectedHour.main.temp_max}° / 최저: {selectedHour.main.temp_min}°</div>
-            <div className="mt-3">🥶 체감 온도: {selectedHour.main.feels_like}°</div>
-            <div className="mt-3">💧 습도: {selectedHour.main.humidity}%</div>          </div>
+            {new Date(selectedHour.dt_txt).getTime() - now.getTime() >= -3 * 60 * 60 * 1000 ? (
+              <>
+                <div className="mt-3">🌡️ 최고: {selectedHour.main.temp_max + 5}° / 최저: {selectedHour.main.temp_min + 5}°</div>
+                <div className="mt-3">🥶 체감 온도: {(selectedHour.main.feels_like + 5).toFixed(2)}°</div>
+              </>
+            ) : (
+              <>
+                <div className="mt-3">🌡️ 최고: {selectedHour.main.temp_max}° / 최저: {selectedHour.main.temp_min}°</div>
+                <div className="mt-3">🥶 체감 온도: {selectedHour.main.feels_like.toFixed(2)}°</div>
+              </>
+            )}
+            <div className="mt-3">💧 습도: {selectedHour.main.humidity}%</div>
+          </div>
         </div>
       )}
     </div>

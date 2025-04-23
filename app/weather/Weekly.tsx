@@ -1,113 +1,28 @@
 "use client"
 
-{/*ui 생성을 위한 더미 데이터 입니다 */}
-const weeklyData = {
-    "주간": "4월 4주",
-    data: [
-        {
-            "dt_txt": "2025-04-18 00:00:00",
-            "main": {
-                "temp": 12.3,
-                "feels_like": 11.1,
-                "temp_min": 11.5,
-                "temp_max": 12.8,
-                "pressure": 1012,
-                "humidity": 82
-            },
-            "weather": [
-                {
-                    "main": "Clear",
-                    "description": "clear sky",
-                    "icon": "01n"
-                }
-            ]
-        },
-        {
-            "dt_txt": "2025-04-19 03:00:00",
-            "main": {
-                "temp": 10.8,
-                "feels_like": 9.7,
-                "temp_min": 10.0,
-                "temp_max": 11.2,
-                "pressure": 1013,
-                "humidity": 85
-            },
-            "weather": [
-                {
-                    "main": "Clear",
-                    "description": "clear sky",
-                    "icon": "01n"
-                }
-            ]
-        },
-        {
-            "dt_txt": "2025-04-20 06:00:00",
-            "main": {
-                "temp": 11.5,
-                "feels_like": 10.3,
-                "temp_min": 11.0,
-                "temp_max": 12.0,
-                "pressure": 1014,
-                "humidity": 80
-            },
-            "weather": [
-                {
-                    "main": "Clouds",
-                    "description": "few clouds",
-                    "icon": "02n"
-                }
-            ]
-        },
-        {
-            "dt_txt": "2025-04-21 09:00:00",
-            "main": {
-                "temp": 15.6,
-                "feels_like": 15.0,
-                "temp_min": 14.8,
-                "temp_max": 16.3,
-                "pressure": 1016,
-                "humidity": 70
-            },
-            "weather": [
-                {
-                    "main": "Clouds",
-                    "description": "scattered clouds",
-                    "icon": "03d"
-                }
-            ]
-        },
-        {
-            "dt_txt": "2025-04-22 12:00:00",
-            "main": {
-                "temp": 19.2,
-                "feels_like": 18.9,
-                "temp_min": 18.5,
-                "temp_max": 20.0,
-                "pressure": 1018,
-                "humidity": 60
-            },
-            "weather": [
-                {
-                    "main": "Clouds",
-                    "description": "broken clouds",
-                    "icon": "04d"
-                }
-            ]
+import { useUserStore } from '@/store/userStore';
+import { useWeather } from '@/lib/hooks/useWeather';
 
-        }
-    ]
-
-}
-
-const skeletonData = weeklyData.data.map((weather) => ({
-    day: weather.dt_txt,
-    temp_min: weather.main.temp_min,
-    temp_max: weather.main.temp_max,
-    feels_like: weather.main.feels_like,
-    humidity: weather.main.humidity,
-}));
 
 export function Weekly() {
+    const { selectedWeatherRegion } = useUserStore();
+    const { lat, lon } = selectedWeatherRegion ?? {};
+    const { data: weatherData, isLoading } = useWeather(lat, lon);
+
+    const weeklyData = weatherData?.list.filter((item) =>
+        item.dt_txt.includes("12:00:00")
+    ) ?? [];
+
+    const skeletonData = weeklyData.map((weather) => ({
+        day: weather.dt_txt,
+        temp_min: weather.main.temp_min + 5,
+        temp_max: weather.main.temp_max + 5,
+        feels_like: weather.main.feels_like + 5,
+        humidity: weather.main.humidity,
+        icon: weather.weather[0].icon,
+    }));
+
+
     return (
         <div className="grid gap-3">
             {skeletonData.map((day, index) => (
@@ -120,7 +35,7 @@ export function Weekly() {
                     {/* 날씨 아이콘 */}
                     <div className="w-14 h-14 flex-shrink-0 mr-4">
                         <img
-                            src={`https://openweathermap.org/img/wn/04d@2x.png`} // 더미 예시
+                            src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
                             alt="날씨 아이콘"
                             className="w-full h-full object-contain"
                         />

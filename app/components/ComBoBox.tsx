@@ -28,8 +28,9 @@ const userId = '0696ef51-33cc-471d-a95c-265d9565ee06';
 
 export function ComboboxDemo() {
   const { selectedRegion, setSelectedRegion } = useFavoriteRegion();
+  const { setSelectedWeatherRegion, selectedWeatherRegion } = useUserStore();
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<string>('');
+  const [value, setValue] = React.useState<string>(selectedWeatherRegion.name || '');
   const [regions, setRegions] = React.useState<{
     region_id: string;
     region_name: string;
@@ -37,8 +38,6 @@ export function ComboboxDemo() {
     lon: number;
   }[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const { setSelectedWeatherRegion } = useUserStore();
-
 
   // 🔁 API 호출
   React.useEffect(() => {
@@ -56,6 +55,12 @@ export function ComboboxDemo() {
 
     fetchRegions();
   }, []);
+
+  React.useEffect(() => {
+    if (selectedWeatherRegion.name && !value) {
+      setValue(selectedWeatherRegion.name);
+    }
+  }, [selectedWeatherRegion.name]);
 
 
   return (
