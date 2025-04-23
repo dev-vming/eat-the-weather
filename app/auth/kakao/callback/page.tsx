@@ -1,5 +1,6 @@
 'use client';
 
+import { KakaoProfileDto } from '@/application/usecases/auth/dto/KakaoAuthDto';
 import { api } from '@/lib/axios';
 import { useUserStore } from '@/store/userStore';
 import { User } from '@supabase/supabase-js';
@@ -24,13 +25,13 @@ export default function KakaoCallbackPage() {
 
     const handleKakao = async () => {
       try {
-        const res = await api.post<KakaoLoginRes>('/auth/kakao', {
-          code,
-          from,
-        });
         
 
         if (from === 'login') {
+          const res = await api.post<KakaoLoginRes>('/auth/kakao/login', {
+            code,
+            from,
+          });
           const { user, accessToken, refreshToken } = res.data;
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('refreshToken', refreshToken);
@@ -47,8 +48,12 @@ export default function KakaoCallbackPage() {
         }
 
         if (from === 'signup') {
-          const { user } = res.data;
-          setTempUser(user);
+          const res = await api.post<{ kakaoUser: KakaoProfileDto }>('/auth/kakao/check-email', {
+            code, from
+          });
+          const { kakaoUser } = res.data;
+
+          setTempUser(kakaoUser);
           router.replace('/onboarding');
         }
       } catch (err: any) {

@@ -43,6 +43,7 @@ export const SbUserRepository = (): UserRepository => ({
         password: user.password,
         onboarding_completed: user.onboarding_completed,
         temperature_sensitivity: user.temperature_sensitivity,
+        profile_image: user.profile_image,
       })
       .select()
       .single();
@@ -54,9 +55,9 @@ export const SbUserRepository = (): UserRepository => ({
       email: data.email,
       nickname: data.nickname,
       provider: data.provider,
-      onboarding_completed: data.onboardingCompleted,
-      temperature_sensitivity: data.temperatureSetting,
-      profile_image: data.profileImage,
+      onboarding_completed: data.onboarding_completed,
+      temperature_sensitivity: data.temperature_sensitivity,
+      profile_image: data.profile_image,
     };
   },
 });
