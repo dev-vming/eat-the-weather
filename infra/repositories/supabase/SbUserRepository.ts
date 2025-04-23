@@ -16,9 +16,9 @@ export const SbUserRepository = (): UserRepository => ({
       email: data.email,
       nickname: data.nickname,
       provider: data.provider,
-      onboarding_completed: data.onboardingCompleted,
-      temperature_sensitivity: data.temperatureSetting,
-      profile_image: data.profileImage,
+      onboarding_completed: data.onboarding_completed,
+      temperature_sensitivity: data.temperature_sensitivity,
+      profile_image: data.profile_image,
     };
   },
 
