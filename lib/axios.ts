@@ -63,7 +63,7 @@ api.interceptors.response.use(
         localStorage.clear();
         sessionStorage.clear();
         useUserStore.getState().clearUser();
-        useUserStore.getState().setPersistMode('pre-signup');
+        useUserStore.getState().setPersistMode('pre-onboarding');
         window.location.href = '/auth/login';
         return Promise.reject(refreshError);
       }
