@@ -1,17 +1,28 @@
 "use client"
 
+import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Hourly } from "./Hourly";
 import { Weekly } from "./Weekly";
 import { ComboboxDemo } from "../components/ComBoBox";
 
 function WeatehrPage() {
+  const weekLabel = useMemo(() => {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const date = today.getDate();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+    const adjustedDate = date + firstDay;
+    const week = Math.ceil(adjustedDate / 7);
+    return `${month}월 ${week}주`;
+  }, []);
+
   return (
     <div className="min-h-screen w-full px-4 py-6 bg-white flex flex-col">
       <h1 className="text-lg font-bold mb-6">날씨</h1>
       <Tabs defaultValue="weekly" className="w-full flex flex-col">
         <div className="flex justify-center items-center mb-4 ml-4">
-          <div className="text-xl font-extrabold">1월 1주</div>
+          <div className="text-xl font-extrabold">{weekLabel}</div>
           <ComboboxDemo />
         </div>
 
