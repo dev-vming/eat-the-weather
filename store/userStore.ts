@@ -71,6 +71,9 @@ type UserStore = {
   user: User;
   setUser: (data: Partial<User>) => void;
   clearUser: () => void;
+
+  selectedWeatherRegion: Region;
+  setSelectedWeatherRegion: (region: Region) => void;
 };
 
 export const useUserStore = create<UserStore>()(
@@ -108,7 +111,18 @@ export const useUserStore = create<UserStore>()(
       clearUser: () => set({ user: { ...defaultUser } }),
       persistMode: 'pre-signup',
       setPersistMode: (mode) => set({ persistMode: mode }),
+
+      selectedWeatherRegion: {
+        region_id: '',
+        name: '',
+        lat: 0,
+        lon: 0,
+      },
+      setSelectedWeatherRegion: (region) =>
+        set(() => ({ selectedWeatherRegion: region })),
     }),
+
+    
     {
       name: 'user-store',
       storage: {
@@ -155,6 +169,7 @@ export const useUserStore = create<UserStore>()(
         if (state.persistMode === 'post-signup') {
           return {
             user: state.user,
+            selectedWeatherRegion: state.selectedWeatherRegion,
             persistMode: state.persistMode,
           } as UserStore;
         } else {
