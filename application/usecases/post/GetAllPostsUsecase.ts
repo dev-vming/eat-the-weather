@@ -16,19 +16,26 @@ export const GetAllPostsUsecase = async (
   filter: PostFilter
 ): Promise<{
   posts: PostView[];
-  nextCursor: string | undefined;
+  nextCursor?: string | Date;
 }> => {
-  // 게시글 목록 조회
   const posts = await postRepository.getAll(filter);
 
-  // 다음 페이지 요청을 위한 커서 설정
-  const nextCursor =
-    posts.length > 0
-      ? new Date(posts[posts.length - 1].created_at).toISOString()
-      : undefined;
+  if (posts.length === 0) {
+    return { posts, nextCursor: undefined };
+  }
 
-  return {
-    posts,
-    nextCursor,
-  };
+  const last = posts[posts.length - 1];
+
+  // order_by에 따라 커서 생성
+  const nextCursor =
+    filter.order_by === 'like_count'
+      ? // 인기순: like_count & created_at 복합 커서 (JSON 문자열)
+        JSON.stringify({
+          likeCount: last.like_count,
+          createdAt: last.created_at,
+        })
+      : // 최신순: created_at 타임스탬프 문자열
+        last.created_at;
+
+  return { posts, nextCursor };
 };
