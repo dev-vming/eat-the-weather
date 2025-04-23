@@ -24,7 +24,7 @@ export const GetAllPostsUsecase = async (
   // 다음 페이지 요청을 위한 커서 설정
   const nextCursor =
     posts.length > 0
-      ? new Date(posts[posts.length - 1].createdAt).toISOString()
+      ? new Date(posts[posts.length - 1].created_at).toISOString()
       : undefined;
 
   return {
