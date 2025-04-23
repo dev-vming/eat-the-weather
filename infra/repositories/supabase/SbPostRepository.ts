@@ -41,7 +41,6 @@ export const SbPostRepository: PostRepository = {
     };
   },
 
-  // 무한스크롤 등 페이징용 전체 조회
   async getAll(filter: PostFilter): Promise<PostView[]> {
     let query = supabase.from('post_view').select('*');
 
