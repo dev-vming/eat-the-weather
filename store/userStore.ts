@@ -113,10 +113,10 @@ export const useUserStore = create<UserStore>()(
       setPersistMode: (mode) => set({ persistMode: mode }),
 
       selectedWeatherRegion: {
-        region_id: '',
-        name: '',
-        lat: 0,
-        lon: 0,
+        region_id: 'b32f5114-e015-4ac5-afba-0375f6e2c5c5',
+        name: '서울특별시 중구',
+        lat: 37.5638077703601,
+        lon: 126.997555182293,
       },
       setSelectedWeatherRegion: (region) =>
         set(() => ({ selectedWeatherRegion: region })),
