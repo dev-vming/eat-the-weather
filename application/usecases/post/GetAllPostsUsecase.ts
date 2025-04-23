@@ -34,8 +34,7 @@ export const GetAllPostsUsecase = async (
           likeCount: last.like_count,
           createdAt: last.created_at,
         })
-      : // 최신순: created_at 타임스탬프 문자열
-        last.created_at;
+      : last.created_at;
 
   return { posts, nextCursor };
 };

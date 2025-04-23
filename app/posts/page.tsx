@@ -34,7 +34,7 @@ export default function PostPage() {
   } = useInfiniteQuery<{ posts: PostView[]; nextCursor?: string }, Error>({
     queryKey: ['posts', region_id, order_by, has_outfit_tag, has_weather_tag],
     initialPageParam: undefined,
-    // queryFn을 인라인으로 선언해서 QueryFunctionContext<{pageParam?: unknown}>를 받도록 합니다.
+
     queryFn: async ({
       pageParam = undefined,
     }): Promise<{ posts: PostView[]; nextCursor?: string }> => {
