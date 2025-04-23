@@ -9,7 +9,7 @@ type Params = {
 };
 
 export async function GET(req: NextRequest, { params }: Params) {
-  const name = decodeURIComponent(params.name);
+  const {name} = await params;
   const region = await getCoordsUsecase(SbRegionRepository(), name);
 
     return NextResponse.json(region);

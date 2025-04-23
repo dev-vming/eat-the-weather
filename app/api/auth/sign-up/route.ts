@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       provider,
     } = body as EmailSignupRequestDto;
 
-    await EmailSignupUsecase(SbUserRepository(), {
+    const {user} = await EmailSignupUsecase(SbUserRepository(), {
       email,
       password,
       nickname,
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       provider,
     });
 
-    const res = NextResponse.json({ status: 201 });
+    const res = NextResponse.json(user.user_id,{ status: 201 });
 
     return res;
   } catch (error: any) {
