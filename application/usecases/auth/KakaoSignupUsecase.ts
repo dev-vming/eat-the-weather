@@ -20,7 +20,7 @@ export const kakaoSignupUsecase = async (
     profile_image: kakaoUser.profile_image,
     provider: 'kakao',
     onboarding_completed: false,
-    temperature_sensitivity: null,
+    temperature_sensitivity: 0,
   });
 
   return { user };

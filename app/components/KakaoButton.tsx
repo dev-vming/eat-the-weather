@@ -5,9 +5,14 @@ import { Button } from '@/components/ui/button';
 const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
 const KAKAO_REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
 
-export default function KakaoLoginButton() {
+interface KakaoLoginButtonProps {
+  state: string;
+}
+
+export default function KakaoLoginButton({ state }: KakaoLoginButtonProps) {
   const handleClick = () => {
-    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}`;
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code&state=${state}`;
+
     window.location.href = kakaoAuthUrl;
   };
 

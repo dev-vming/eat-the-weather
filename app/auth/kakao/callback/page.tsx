@@ -1,10 +1,13 @@
 'use client';
 
 import { api } from '@/lib/axios';
+import { useUserStore } from '@/store/userStore';
+import { User } from '@supabase/supabase-js';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-interface Tokens {
+interface KakaoLoginRes {
+  user: User;
   accessToken: string;
   refreshToken: string;
 }
@@ -13,41 +16,56 @@ export default function KakaoCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
+  const from = searchParams.get('state'); 
+  const { setTempUser } = useUserStore();
 
   useEffect(() => {
-    if (!code) return;
+    if (!code || !from) return;
 
-    const login = async () => {
+    const handleKakao = async () => {
       try {
-        const res = await api.post<Tokens>('/auth/kakao/login', { code });
-        const { accessToken, refreshToken } = res.data;
-
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-
-        router.replace('/');
+        const res = await api.post<KakaoLoginRes>('/auth/kakao', {
+          code,
+          from,
+        });
         
+
+        if (from === 'login') {
+          const { user, accessToken, refreshToken } = res.data;
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+
+          const userRes = await api.get<User>(`/user/${user.email}`);
+
+          useUserStore
+            .getState()
+            .setUser({ ...userRes.data, isAuthenticated: true });
+          useUserStore.getState().setPersistMode('post-signup');
+
+          alert('로그인 성공!');
+          router.push('/');
+        }
+
+        if (from === 'signup') {
+          const { user } = res.data;
+          setTempUser(user);
+          router.replace('/onboarding');
+        }
       } catch (err: any) {
-        if (err.response?.data?.message === '존재하지 않는 이메일입니다.') {
-          // 신규 유저 - 회원가입
-          try {
-            const signupRes = await api.post('/auth/kakao/signup', { code });
-            if (signupRes.status === 200) {
-              router.replace('/onboarding');
-            }
-          } catch (signupErr) {
-            alert('회원가입 실패');
-            router.replace('/auth/login');
-          }
+        if (
+          from === 'login' &&
+          err.response?.data?.message === '존재하지 않는 이메일입니다.'
+        ) {
+          router.replace('/auth/sign-up');
         } else {
-          alert(err.response?.data?.message || '카카오 로그인 실패');
+          alert(err.response?.data?.message || '카카오 인증 실패');
           router.replace('/auth/login');
         }
       }
     };
 
-    login();
-  }, [code, router]);
+    handleKakao();
+  }, [code, from, router]);
 
   return <p className="text-center mt-10">카카오 로그인 중입니다...</p>;
 }

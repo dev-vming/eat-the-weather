@@ -117,7 +117,7 @@ export default function SignUpPage() {
         다음
       </Button>
 
-      <KakaoLoginButton />
+      <KakaoLoginButton state={"signup"} />
       <Link href="/auth/login" className="font-medium">
         로그인
       </Link>

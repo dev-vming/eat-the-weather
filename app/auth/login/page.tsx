@@ -98,7 +98,7 @@ export default function LoginPage() {
         이메일 로그인
       </Button>
 
-      <KakaoLoginButton/>
+      <KakaoLoginButton state={"login"} />
 
       <Link href="/auth/sign-up" className={Style.Link}>
         회원가입

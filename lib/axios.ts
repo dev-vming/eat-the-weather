@@ -1,19 +1,23 @@
-import { useUserStore } from '@/store/userStore';
 import axios from 'axios';
+import { useUserStore } from '@/store/userStore';
+
+// 타입 안전하게 선언 (axios.d.ts에서 불러오는 대신)
+type CustomRequestConfig = Parameters<typeof axios.request>[0];
 
 interface RefreshResponse {
   accessToken: string;
 }
 
+// 공통 API 인스턴스 생성
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
 });
 
-// axios 요청 시 토큰 헤더 자동 설정
-api.interceptors.request.use((config) => {
+// 요청 인터셉터: accessToken이 있으면 Authorization 헤더에 추가
+api.interceptors.request.use((config: CustomRequestConfig) => {
   const accessToken =
     localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-  
+
   if (accessToken) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -21,23 +25,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-
+// 응답 인터셉터: accessToken 만료 시 refreshToken으로 갱신
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as CustomRequestConfig & { _retry?: boolean };
 
-    // 로그인 시 잘못된 정보로 401 에러가 발생한 경우 무한 refresh 방지
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      if (error.response.data?.message === '잘못된 비밀번호입니다.' || error.response.data?.message === '등록되지 않은 이메일입니다.') {
+      if (
+        error.response.data?.message === '잘못된 비밀번호입니다.' ||
+        error.response.data?.message === '등록되지 않은 이메일입니다.'
+      ) {
         localStorage.clear();
         sessionStorage.clear();
         return Promise.reject(error);
       }
 
-      // refreshToken을 사용한 재시도
       const refreshToken =
         localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
 
@@ -51,11 +56,10 @@ api.interceptors.response.use(
           sessionStorage.setItem('accessToken', newAccessToken);
         }
 
+        originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
-
       } catch (refreshError) {
-        // refresh 실패 시 로그아웃 처리
         localStorage.clear();
         sessionStorage.clear();
         useUserStore.getState().clearUser();
@@ -65,6 +69,6 @@ api.interceptors.response.use(
       }
     }
 
-    return Promise.reject(error); // 그 외의 에러는 그대로 반환
+    return Promise.reject(error);
   }
 );

@@ -12,13 +12,13 @@ export async function POST(req: NextRequest) {
       clientId: process.env.KAKAO_REST_API_KEY!,
       redirectUri: process.env.KAKAO_REDIRECT_URI!,
     };
-    const { accessToken, refreshToken } = await kakaoLoginUsecase(
+    const { user, accessToken, refreshToken } = await kakaoLoginUsecase(
       SbUserRepository(),
       dto
     );
 
     const res = NextResponse.json(
-      { accessToken, refreshToken },
+      { user, accessToken, refreshToken },
       { status: 200 }
     );
 
