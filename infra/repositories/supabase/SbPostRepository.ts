@@ -43,7 +43,6 @@ export const SbPostRepository: PostRepository = {
 
   async getAll(filter: PostFilter): Promise<PostView[]> {
     let query = supabase.from('post_view').select('*');
-
     // 해당 지역의 게시글만 조회
     if (filter.region_id) {
       query = query.eq('region_id', filter.region_id);
@@ -95,15 +94,14 @@ export const SbPostRepository: PostRepository = {
     }
 
     const { data, error } = await query;
-
     if (error || !data) throw new Error('게시글 조회 실패');
 
     return data.map(
       (post): PostView => ({
         post_id: post.post_id,
         content: post.content,
-        createdAt: post.created_at,
-        updatedAt: post.updated_at,
+        created_at: post.created_at,
+        updated_at: post.updated_at,
         has_outfit_tag: post.has_outfit_tag,
         has_weather_tag: post.has_weather_tag,
         temperature_sensitivity: post.temperature_sensitivity,
@@ -116,5 +114,69 @@ export const SbPostRepository: PostRepository = {
         },
       })
     );
+  },
+
+  async update(post: Post): Promise<void> {
+    const { error } = await supabase
+      .from('post')
+      .update({
+        content: post.content,
+        post_image: post.post_image,
+        temperature_sensitivity: post.temperature_sensitivity,
+        has_outfit_tag: post.has_outfit_tag,
+        has_weather_tag: post.has_weather_tag,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('post_id', post.post_id);
+
+    if (error) throw new Error('게시글 수정 실패');
+  },
+
+  async delete(postId: string): Promise<void> {
+    const { error } = await supabase
+      .from('post')
+      .delete()
+      .eq('post_id', postId);
+    if (error) throw new Error('게시글 삭제 실패');
+  },
+
+  /** 게시물 상세 요청 */
+  async getById(postId: string): Promise<PostView> {
+    console.log('postId sbpost:', postId); //undefined
+    const { data, error } = await supabase
+      .from('post_view')
+      .select('*')
+      .eq('post_id', postId)
+      .single();
+
+    if (error || !data) {
+      console.error('게시글 상세 조회 실패:', error?.message || '데이터 없음');
+      throw new Error('게시글이 존재하지 않거나 조회에 실패했습니다.');
+    }
+
+    return data as PostView;
+  },
+
+  async getByUserId(userId: string): Promise<Post[]> {
+    const { data, error } = await supabase
+      .from('post_view')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error || !data) throw new Error('유저 게시글 조회 실패');
+    return data as Post[];
+  },
+
+  async getPopular(regionId?: string, limit: number = 10): Promise<Post[]> {
+    let query = supabase
+      .from('post_view')
+      .select('*')
+      .order('like_count', { ascending: false })
+      .limit(limit);
+    if (regionId) query = query.eq('region_id', regionId);
+
+    const { data, error } = await query;
+    if (error || !data) throw new Error('인기 게시글 조회 실패');
+    return data as Post[];
   },
 };

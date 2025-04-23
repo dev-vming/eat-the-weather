@@ -4,8 +4,8 @@
 export interface PostView {
   post_id: string;
   content: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
   has_outfit_tag: boolean;
   has_weather_tag: boolean;
   temperature_sensitivity: number;
