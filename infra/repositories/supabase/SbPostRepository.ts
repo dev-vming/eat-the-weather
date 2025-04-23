@@ -17,7 +17,7 @@ export const SbPostRepository: PostRepository = {
         user_id: postData.user_id,
         region_id: postData.region_id,
         content: postData.content,
-        post_image: postData.post_image ?? 'default',
+        post_image: postData.post_image ?? null,
         temperature_sensitivity: postData.temperature_sensitivity,
         has_outfit_tag: postData.has_outfit_tag ?? false,
         has_weather_tag: postData.has_weather_tag ?? false,
