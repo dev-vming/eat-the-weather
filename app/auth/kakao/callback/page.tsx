@@ -55,7 +55,7 @@ export default function KakaoCallbackPage() {
         }
       } catch (err: any) {
         if (from === 'login' && err.response?.data?.message === '존재하지 않는 이메일입니다.') {
-          router.replace('/auth/signup');
+          router.replace('/auth/sign-up');
         } else {
           alert(err.response?.data?.message || '카카오 인증 실패');
           router.replace('/auth/login');
