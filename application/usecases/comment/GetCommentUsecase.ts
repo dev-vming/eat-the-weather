@@ -1,11 +1,11 @@
 import { CommentRepository } from '@/domain/repositories/CommentRepository';
+import { GetCommentViewDto } from './dto/GetCommentDto';
 import { GetCommentDto } from './dto/GetCommentDto';
-import { CommentDto } from './dto/CommentDto';
 
 export const GetCommentUsecase = async (
     commentRepository: CommentRepository,
     dto: GetCommentDto
-  ): Promise<CommentDto[]> => {
+  ): Promise<GetCommentDto[]> => {
     const comments = await commentRepository.getCommentsPostId(dto.post_id);
   
     return comments.map((comment) => ({

@@ -2,6 +2,7 @@ import { Comment } from '@/domain/entities/Comment';
 import { CommentRepository } from '@/domain/repositories/CommentRepository';
 import { CommentFilter } from '@/domain/repositories/filters/CommentFilter';
 import { supabase } from './Sbclient';
+import { GetCommentViewDto } from '@/application/usecases/comment/dto/GetCommentDto';
 
 /**
  * Supabase 기반 댓글 Repository 구현체
@@ -15,7 +16,7 @@ export const SbCommentRepository = (): CommentRepository => {
      * @returns 조건에 맞는 댓글 수
      */
     async getCommentsCount(filter?: CommentFilter): Promise<number> {
-      let query = supabase.from('comment').select('*', { count: 'exact', head: true });
+      let query = supabase.from('comment_user_view').select('*', { count: 'exact', head: true });
 
       if (filter?.post_id) {
         query = query.eq('post_id', filter.post_id);
@@ -36,8 +37,8 @@ export const SbCommentRepository = (): CommentRepository => {
      * @param filter - post_id 또는 created_at 조건으로 필터링
      * @returns 댓글 리스트
      */
-    async getAllComments(filter?: CommentFilter): Promise<Comment[]> {
-      let query = supabase.from('comment').select('*');
+    async getAllComments(filter?: CommentFilter): Promise<GetCommentViewDto[]> {
+      let query = supabase.from('comment_user_view').select('*');
 
       if (filter?.post_id) {
         query = query.eq('post_id', filter.post_id);
@@ -60,7 +61,7 @@ export const SbCommentRepository = (): CommentRepository => {
      */
     async getCommentsById(comment_id: string): Promise<Comment | null> {
       const { data, error } = await supabase
-        .from('comment')
+        .from('comment_user_view')
         .select('*')
         .eq('comment_id', comment_id)
         .single();
@@ -74,14 +75,15 @@ export const SbCommentRepository = (): CommentRepository => {
      * @param post_id - 게시글의 ID
      * @returns 해당 게시글의 댓글 배열
      */
-    async getCommentsPostId(post_id: string): Promise<Comment[]> {
+    async getCommentsPostId(post_id: string): Promise<GetCommentViewDto[]> {
       const { data, error } = await supabase
-        .from('comment')
+        .from('comment_user_view')
         .select('*')
-        .eq('post_id', post_id);
+        .eq('post_id', post_id)
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return data as Comment[];
+      return data as GetCommentViewDto[];
     },
 
     /**

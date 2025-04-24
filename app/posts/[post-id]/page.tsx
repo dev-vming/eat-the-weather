@@ -6,24 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { PostView } from '@/domain/entities/PostView';
+import { GetCommentViewDto } from '@/application/usecases/comment/dto/GetCommentDto';
 import { api } from '@/lib/axios';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-const dummyComments = [
-  {
-    id: '1',
-    author: '답변작성자1',
-    content: '윤하 - 우산 ☂️',
-    createdAt: '2025.04.09 오전 10:00',
-  },
-  {
-    id: '2',
-    author: '답변작성자2',
-    content: '검정치마 - 나랑 아니면 ✪⭘',
-    createdAt: '2025.04.09 오전 10:30',
-  },
-];
+import { useUserStore } from '@/store/userStore';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -31,7 +18,10 @@ export default function PostDetailPage() {
     typeof params === 'object' && 'post-id' in params
       ? params['post-id']
       : undefined;
+  const user_id = useUserStore((state) => state.user.user_id);
   const [postData, setPostData] = useState<PostView | null>(null);
+  const [comments, setComments] = useState<GetCommentViewDto[]>([]);
+  const [inputComment, setInputComment] = useState<string>('');
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -46,7 +36,40 @@ export default function PostDetailPage() {
     if (post_id && typeof post_id === 'string') fetchPost();
   }, [post_id]);
 
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await api.get<GetCommentViewDto[]>(`/posts/${post_id}/comments`);
+        setComments(res.data);
+      } catch (error) {
+        console.error('댓글 불러오기 실패:', error);
+      }
+    };
+
+    if (post_id && typeof post_id === 'string') fetchComments();
+  }, [post_id]);
+
   if (!postData) return <div className="p-6">로딩 중...</div>;
+
+  const handleCommentSubmit = async () => {
+    if (!inputComment.trim()) return; // 빈 댓글은 제출하지 않음
+    try {
+      await api.post(`/comment`, {
+        post_id: post_id,
+        user_id: user_id,
+        content: inputComment,
+      });
+      // 댓글 다시 불러오기
+      const res = await api.get<GetCommentViewDto[]>(`/posts/${post_id}/comments`);
+      setComments(res.data);
+
+      // 입력창 초기화
+      setInputComment('');
+    } catch (error) {
+      console.error('댓글 등록 실패:', error);
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white px-4 pt-6">
@@ -82,27 +105,32 @@ export default function PostDetailPage() {
       <div className="flex items-center pt-4 pb-6">
         <Separator className="flex-1" />
         <span className="mx-4 text-gray-400 text-xs">
-          {dummyComments.length}개의 댓글
+          {comments.length}개의 댓글
         </span>
         <Separator className="flex-1" />
       </div>
 
       {/* 댓글 리스트 */}
       <div className="flex-1 overflow-y-auto pr-2 mb-2">
-        <CommentItems comments={dummyComments} />
+        <CommentItems comments={comments} />
+
       </div>
 
       {/* 댓글 입력창 */}
-      <div className="flex items-center gap-2 py-4 px-1 flex-shrink-0 bg-white border-t">
+      <div className="flex items-center gap-2 px-4 py-5 mb-20 flex-shrink-0 bg-white border-t">
         <Input
           type="text"
           placeholder="댓글을 입력하세요..."
           className="flex-1 bg-gray-100 text-sm"
+          onChange={(e) => setInputComment(e.target.value)}
+          value={inputComment}
         />
-        <Button variant="default" className="text-sm px-3">
+        <Button variant="default" className="text-sm px-3"
+          onClick={handleCommentSubmit}>
           등록
         </Button>
       </div>
     </div>
   );
 }
+

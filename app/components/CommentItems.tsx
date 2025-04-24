@@ -1,12 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface Comment {
-  id: string;
+  comment_id: string;
+  user_id: string;
   content: string;
-  author: string;
-  createdAt: string;
+  nickname: string;
+  created_at: string | Date;
 }
 
 interface CommentListProps {
@@ -14,28 +17,30 @@ interface CommentListProps {
   onDelete?: (id: string) => void;
 }
 
-export default function CommentItem({ comments, onDelete }: CommentListProps) {
+export default function CommentItems({ comments, onDelete }: CommentListProps) {
   return (
     <div className="overflow-y-auto flex-1">
-      {comments.map((comment) => (
+      {comments.map((comment, idx) => (
         <div
-          key={comment.id}
-          className={`flex mb-2 ${comment.author === '나' ? 'justify-end' : 'justify-start'}`}
+          key={`${comment.comment_id}-${idx}`} // 확실하게 중복방지
+          className={`flex mb-2 ${comment.nickname === '나' ? 'justify-end' : 'justify-start'}`}
         >
           <div className="flex flex-col items-start mb-1">
             <span className="text-xs text-gray-400 mb-1">
-              {comment.author} · {comment.createdAt}
+            {comment.nickname} ·{' '}
+            {format(new Date(comment.created_at), 'yyyy.MM.dd a hh:mm', { locale: ko })}
             </span>
+
 
             <div
               className={`py-3 px-4 rounded-xl text-sm whitespace-pre-wrap
-                  ${comment.author === '나' ? 'bg-yellow-200 text-black' : 'bg-yellow-100 text-black'}
-                  ${comment.author === '나' ? 'rounded-br-none' : 'rounded-bl-none'}`}
+                  ${comment.nickname === '나' ? 'bg-yellow-200 text-black' : 'bg-yellow-100 text-black'}
+                  ${comment.nickname === '나' ? 'rounded-br-none' : 'rounded-bl-none'}`}
             >
               {comment.content}
             </div>
 
-            {comment.author === '나' && (
+            {comment.nickname === '나' && (
               <Button
                 variant="ghost"
                 size="sm"
