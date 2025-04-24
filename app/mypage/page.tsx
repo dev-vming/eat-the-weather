@@ -10,13 +10,15 @@ const linkItems = [
   { href: '/mypage/posts', label: '작성한 게시물' },
   { href: '/mypage/likes', label: '좋아요한 게시물' },
   { href: '/onboarding', label: '날씨 민감도 관리' },
-  { href: '/regions', label: '지역 관리' },
+  { href: '/mypage/regions', label: '지역 즐겨찾기 관리' },
   { href: '/account', label: '계정 관리' },
   { href: '', label: '로그아웃' },
 ];
 
 export default function ProfilePage() {
   const router = useRouter();
+
+  const user = useUserStore().user;
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
@@ -37,12 +39,12 @@ export default function ProfilePage() {
       <h1 className="text-lg font-bold mb-6">마이페이지</h1>
       <div className="flex items-center gap-4 mb-8 mt-10">
         <Avatar className="w-12 h-12">
-          <AvatarImage src="/images/user2.png" alt="유저 아바타" />
+          <AvatarImage src={user.profile_image || "/images/user2.png" } alt="유저 아바타" />
           <AvatarFallback>프로필</AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-semibold text-base">김유저</p>
-          <p className="text-gray-400 text-sm">user@user.com</p>
+          <p className="font-semibold text-base">{user.nickname}</p>
+          <p className="text-gray-400 text-sm">{user.email}</p>
         </div>
       </div>
 
