@@ -113,11 +113,8 @@ export const SbPostRepository: PostRepository = {
 
     // 현재 유저가 좋아요 누른 post_id 목록을 한 번 더 조회
     const postIds = data.map((p) => p.post_id);
-    console.log('포스트아이디', postIds);
-    console.log('필터', filter);
     let likedSet = new Set<string>();
     if (filter.user_id && postIds.length > 0) {
-      console.log('필터 유저아이디', filter.user_id);
       const { data: userLikes, error: likesError } = await supabase
         .from('like')
         .select('post_id')
@@ -128,7 +125,6 @@ export const SbPostRepository: PostRepository = {
         likedSet = new Set(userLikes.map((l) => l.post_id));
       }
     }
-    console.log('likedSet:', likedSet); // 좋아요 누른 게시물 ID 목록
 
     return data.map((post) => ({
       post_id: post.post_id,
@@ -175,7 +171,6 @@ export const SbPostRepository: PostRepository = {
 
   /** 게시물 상세 요청 */
   async getById(postId: string): Promise<PostView> {
-    console.log('postId sbpost:', postId); //undefined
     const { data, error } = await supabase
       .from('post_view')
       .select('*')

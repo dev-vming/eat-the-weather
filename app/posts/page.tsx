@@ -21,7 +21,6 @@ export default function PostPage() {
     selectedWeatherRegion?.region_id ?? 'b32f5114-e015-4ac5-afba-0375f6e2c5c5';
   // user_id: 항상 현재 로그인 유저
   const user_id = user.user_id;
-  console.log('user_id:', user_id);
 
   const order_by =
     (searchParams.get('order_by') as 'created_at' | 'like_count') ??
