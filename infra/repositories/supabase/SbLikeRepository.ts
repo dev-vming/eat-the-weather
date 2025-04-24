@@ -5,12 +5,12 @@ export const SbLikeRepository: LikeRepository = {
   /**
    * 좋아요 추가
    * @param userId 사용자 ID
-   * @param post_id 좋아요를 추가할 게시글 ID
+   * @param item_id 좋아요를 추가할 게시글 ID
    */
-  async addLike(userId: string, post_id: string): Promise<void> {
+  async addLike(userId: string, item_id: string): Promise<void> {
     const { error } = await supabase
-      .from('likes')
-      .insert({ user_id: userId, post_id: post_id });
+      .from('like')
+      .insert({ user_id: userId, post_id: item_id });
 
     if (error) {
       throw new Error(`좋아요 추가 실패: ${error.message}`);
@@ -20,14 +20,14 @@ export const SbLikeRepository: LikeRepository = {
   /**
    * 좋아요 제거
    * @param userId 사용자 ID
-   * @param post_id 좋아요를 제거할 게시글 ID
+   * @param item_id 좋아요를 제거할 게시글 ID
    */
-  async removeLike(userId: string, post_id: string): Promise<void> {
+  async removeLike(userId: string, item_id: string): Promise<void> {
     const { error } = await supabase
-      .from('likes')
+      .from('like')
       .delete()
       .eq('user_id', userId)
-      .eq('post_id', post_id);
+      .eq('post_id', item_id);
 
     if (error) {
       throw new Error(`좋아요 제거 실패: ${error.message}`);
@@ -41,7 +41,7 @@ export const SbLikeRepository: LikeRepository = {
    */
   async getLikesByUser(userId: string): Promise<string[]> {
     const { data, error } = await supabase
-      .from('likes')
+      .from('like')
       .select('post_id')
       .eq('user_id', userId);
 
@@ -59,7 +59,7 @@ export const SbLikeRepository: LikeRepository = {
    */
   async getLikesByItem(itemId: string): Promise<string[]> {
     const { data, error } = await supabase
-      .from('likes')
+      .from('like')
       .select('user_id')
       .eq('post_id', itemId);
 

@@ -82,8 +82,9 @@ export default function PostPage() {
         )}
         {posts.map((post) => (
           <div key={post.post_id}>
-            <Link href={`/posts/${post.post_id}`}>
+            <Link className=" z-0" href={`/posts/${post.post_id}`}>
               <PostItem
+                postId={post.post_id}
                 content={post.content}
                 date={new Date(post.created_at).toLocaleString('ko-KR', {
                   year: 'numeric',
