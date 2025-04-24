@@ -23,7 +23,7 @@ function Onboarding() {
         useUserStore.getState().setPersistMode('post-login');
         router.push('/auth/login');
       } else {
-        router.push('/mypage');
+        router.push('/member');
       }
     } catch (error: any) {
       alert(error.response?.data?.message);

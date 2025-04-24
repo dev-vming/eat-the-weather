@@ -1,3 +1,4 @@
+import { Region } from '@/domain/entities/Region';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

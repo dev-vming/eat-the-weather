@@ -84,7 +84,7 @@ function OnboardingStep4() {
         });
         useOnboardingStore.getState().clearOnboardingInfo();
         alert('온보딩 완료! 마이페이지로 이동합니다 😆');
-        router.push('/mypage');
+        router.push('/member');
       }
     } catch (error: any) {
       alert(error.response?.data?.message);
