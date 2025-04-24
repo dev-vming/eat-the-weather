@@ -41,31 +41,24 @@ export const SbPostRepository: PostRepository = {
     };
   },
 
+  // 무한스크롤 등 페이징용 전체 조회
   async getAll(filter: PostFilter): Promise<PostView[]> {
     let query = supabase.from('post_view').select('*');
-    // 해당 지역의 게시글만 조회
+
+    // 지역 필터
     if (filter.region_id) {
       query = query.eq('region_id', filter.region_id);
     }
 
-    // 특정 유저의 게시글만 조회 (ex. 내 게시글 보기)
+    // 사용자 필터 (내 게시글 보기 등)
     if (filter.user_id) {
       query = query.eq('user_id', filter.user_id);
     }
 
-    // 최신순 or 인기순 정렬
-    if (filter.order_by) {
-      if (filter.order_by === 'created_at') {
-        query = query.order('created_at', { ascending: false }); // 최신순
-      } else if (filter.order_by === 'like_count') {
-        query = query.order('like_count', { ascending: false }); // 인기순
-      }
-    }
-
-    // 민감도 일치하는 게시글만
+    // 민감도 매칭 필터
     if (
       filter.only_sensitive_match &&
-      filter.my_temperature_sensitivity !== undefined
+      filter.my_temperature_sensitivity != null
     ) {
       query = query.eq(
         'temperature_sensitivity',
@@ -73,47 +66,73 @@ export const SbPostRepository: PostRepository = {
       );
     }
 
-    // #옷차림 태그가 있는 게시글만
-    if (filter.has_outfit_tag !== undefined) {
+    // 태그 필터
+    if (filter.has_outfit_tag != null) {
       query = query.eq('has_outfit_tag', filter.has_outfit_tag);
     }
-
-    // #날씨 태그가 있는 게시글만
-    if (filter.has_weather_tag !== undefined) {
+    if (filter.has_weather_tag != null) {
       query = query.eq('has_weather_tag', filter.has_weather_tag);
     }
 
-    // 최대 조회 개수 제한 (무한스크롤 단위)
+    // 정렬 및 커서 로직
+    if (filter.order_by === 'like_count') {
+      // 인기순: like_count DESC, created_at DESC
+      query = query
+        .order('like_count', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (filter.cursor) {
+        // 커서를 JSON 형태로 파싱 (likeCount, createdAt)
+        const { likeCount, createdAt } = JSON.parse(
+          filter.cursor as string
+        ) as {
+          likeCount: number;
+          createdAt: string;
+        };
+        // like_count < likeCount
+        // OR (like_count == likeCount AND created_at < createdAt)
+        query = query.or(
+          `like_count.lt.${likeCount},` +
+            `and(like_count.eq.${likeCount},created_at.lt.${createdAt})`
+        );
+      }
+    } else {
+      // 기본 최신순: created_at DESC
+      query = query.order('created_at', { ascending: false });
+
+      if (filter.cursor) {
+        // 커서는 created_at 타임스탬프 문자열
+        query = query.lt('created_at', filter.cursor as string);
+      }
+    }
+
+    // 조회 개수 제한 (limit)
     if (filter.limit) {
       query = query.limit(filter.limit);
     }
 
-    // 커서 기준 이전(post.created_at < cursor) 게시글만 조회 (무한스크롤)
-    if (filter.cursor) {
-      query = query.lt('created_at', filter.cursor);
+    const { data, error } = await query;
+    if (error || !data) {
+      console.error('게시글 조회 실패:', error);
+      throw new Error('게시글 조회 실패');
     }
 
-    const { data, error } = await query;
-    if (error || !data) throw new Error('게시글 조회 실패');
-
-    return data.map(
-      (post): PostView => ({
-        post_id: post.post_id,
-        content: post.content,
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        has_outfit_tag: post.has_outfit_tag,
-        has_weather_tag: post.has_weather_tag,
-        temperature_sensitivity: post.temperature_sensitivity,
-        post_image: post.post_image,
-        like_count: post.like_count,
-        user: {
-          user_id: post.user.user_id,
-          nickname: post.user.nickname,
-          profile_image: post.user.profile_image,
-        },
-      })
-    );
+    return data.map((post) => ({
+      post_id: post.post_id,
+      content: post.content,
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+      has_outfit_tag: post.has_outfit_tag,
+      has_weather_tag: post.has_weather_tag,
+      temperature_sensitivity: post.temperature_sensitivity,
+      post_image: post.post_image,
+      like_count: post.like_count,
+      user: {
+        user_id: post.user.user_id,
+        nickname: post.user.nickname,
+        profile_image: post.user.profile_image,
+      },
+    }));
   },
 
   async update(post: Post): Promise<void> {
