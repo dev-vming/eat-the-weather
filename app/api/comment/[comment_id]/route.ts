@@ -5,7 +5,7 @@ import { GetCommentUsecase } from '@/application/usecases/comment/GetCommentUsec
 
 interface RequestParams {
   params: {
-    id: string;
+    comment_id: string;
   };
 }
 
@@ -14,13 +14,13 @@ export async function DELETE(
   { params }: RequestParams
 ) {
   try {
-    const { id } = await params;
+    const { comment_id } = await params;
     const repository = SbCommentRepository();
     
-    if (!id) {
+    if (!comment_id) {
       return NextResponse.json({ error: "Comment ID is required" }, { status: 400 });
     }
-    const success = await DeleteCommentUsecase(repository, id);
+    const success = await DeleteCommentUsecase(repository, comment_id);
 
 
     if (!success) {
@@ -39,15 +39,15 @@ export async function GET(
   { params }: RequestParams
 ) {
   try {
-    const { id } = await params;
+    const { comment_id } = await params;
 
-    if (!id) {
+    if (!comment_id) {
       return NextResponse.json({ error: 'postId가 필요합니다' }, { status: 400 });
     }
 
     const repository = SbCommentRepository();
 
-    const comments = await GetCommentUsecase(repository, { post_id: id });
+    const comments = await GetCommentUsecase(repository, { post_id: comment_id });
 
     return NextResponse.json(comments);
   } catch (error) {

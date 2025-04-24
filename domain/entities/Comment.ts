@@ -3,5 +3,6 @@ export interface Comment {
   post_id: string; // UUID
   user_id: string; // UUID
   content: string; // Text
+  nickname: string; // String
   created_at: Date; // Date
 }
