@@ -1,15 +1,15 @@
 "use client";
 
+import { useUserStore } from "@/store/userStore";
 import { Home, Cloud, LayoutList, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface NavbarProps {
-  isAuthenticated:boolean
-}
 
-export const Navbar = ({isAuthenticated}:NavbarProps) => {
+export const Navbar = () => {
   const pathname = usePathname();
+
+  const isAuthenticated = useUserStore().user.isAuthenticated;
 
   const tabs = isAuthenticated ? [
     { href: "/", icon: <Home size={20} />, label: "홈" },

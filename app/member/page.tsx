@@ -11,7 +11,7 @@ const linkItems = [
   { href: '/member/likes', label: '좋아요한 게시물' },
   { href: '/onboarding', label: '날씨 민감도 관리' },
   { href: '/member/regions', label: '지역 즐겨찾기 관리' },
-  { href: '/account', label: '계정 관리' },
+  { href: '/member/infos', label: '계정 관리' },
   { href: '', label: '로그아웃' },
 ];
 
