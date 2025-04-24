@@ -1,18 +1,17 @@
-import type { Metadata } from 'next';
+'use client'
+
 import './globals.css';
 import { Navbar } from './components/NavBar';
 import QueryProviders from '@/providers/QueryProvider';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-export const metadata: Metadata = {
-  title: 'Eat The Weather',
-  description: '날씨를 잇다, 잇더웨더',
-};
+import { useUserStore } from '@/store/userStore';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+  }) {
+  const isAuthenticated = useUserStore().user.isAuthenticated;
   return (
     <html lang="ko">
       <body className="bg-gradient-to-b from-sky-100 to-white min-h-screen flex flex-col items-center pt-[env(safe-area-inset-top)]">
@@ -22,7 +21,7 @@ export default function RootLayout({
             <ReactQueryDevtools initialIsOpen={false} />
           </QueryProviders>
         </div>
-        <Navbar />
+        <Navbar isAuthenticated={isAuthenticated||false} />
       </body>
     </html>
   );
