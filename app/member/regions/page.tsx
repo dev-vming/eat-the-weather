@@ -8,10 +8,12 @@ import { UserRegionFavoriteViewDto } from '@/application/usecases/regionFavorite
 import { Region } from '@/domain/entities/Region';
 import { useUserStore } from '@/store/userStore';
 import { api } from '@/lib/axios';
-import { UserRegionFavorite } from '@/domain/entities/UserRegionFavorite';
+import { useRouter } from 'next/navigation';
 
 export default function MemberRegionsPage() {
+  const router = useRouter();
   const [regions, setRegions] = useState<UserRegionFavoriteViewDto[]>([]);
+  const [originalRegions, setOriginalRegions] = useState<UserRegionFavoriteViewDto[]>([]);
   const [isAddingRegion, setIsAddingRegion] = useState(false);
   const [newRegion, setNewRegion] = useState<Region | undefined>(undefined);
   const uuid = useUserStore.getState().user.user_id;
@@ -31,6 +33,7 @@ export default function MemberRegionsPage() {
       try {
         const data = await fetchRegions(uuid);
         setRegions(data);
+        setOriginalRegions(data);
       } catch (e) {
         alert('지역 정보를 불러오는 데 실패했습니다.');
       }
@@ -54,17 +57,18 @@ export default function MemberRegionsPage() {
 
   const handleSave = async () => {
     const hasPrimary = regions.some((region) => region.is_primary);
-    if (!hasPrimary && regions.length>0) {
+    if (!hasPrimary && regions.length > 0) {
       alert('대표 지역을 하나 선택해주세요.');
       return;
     }
-  
+
     try {
       await api.patch('/region-favorite', {
         user_id: uuid,
         regions: regions.map(({ region_id, is_primary }) => ({ region_id, is_primary })),
       });
       alert('저장되었습니다!');
+      router.push('/member');
     } catch (err) {
       alert('저장 중 오류가 발생했습니다.');
       console.error(err);
@@ -100,6 +104,18 @@ export default function MemberRegionsPage() {
   const handleCancelAdd = () => {
     setIsAddingRegion(false);
     setNewRegion(undefined);
+  };
+
+  const isChanged = () => {
+    if (regions.length !== originalRegions.length) return true;
+
+    const sortedNew = [...regions].sort((a, b) => a.region_id.localeCompare(b.region_id));
+    const sortedOriginal = [...originalRegions].sort((a, b) => a.region_id.localeCompare(b.region_id));
+
+    return sortedNew.some((r, i) =>
+      r.region_id !== sortedOriginal[i].region_id ||
+      r.is_primary !== sortedOriginal[i].is_primary
+    );
   };
 
   return (
@@ -181,7 +197,7 @@ export default function MemberRegionsPage() {
         </div>
       </div>
 
-      <Button className="w-full mt-4 cursor-pointer" onClick={handleSave}>
+      <Button className="w-full mt-4 cursor-pointer" onClick={handleSave} disabled={!isChanged()}>
         저장하기
       </Button>
     </div>
