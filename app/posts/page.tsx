@@ -104,6 +104,7 @@ export default function PostPage() {
                 sensitivity={post.temperature_sensitivity}
                 image={post.post_image}
                 detail={false}
+                my={false}
               />
               <div className="border-b" />
             </Link>

@@ -15,6 +15,7 @@ export interface PostProps {
   likeCount: number;
   sensitivity: number;
   detail?: boolean;
+  my?: boolean;
 }
 
 export default function PostItem({
@@ -28,6 +29,7 @@ export default function PostItem({
   likeCount,
   sensitivity,
   detail,
+  my,
 }: PostProps) {
   return (
     <div
@@ -39,11 +41,12 @@ export default function PostItem({
         onClick={() => console.log('Like area clicked')}
       >
         <PostUserBox nickname={nickname} date={date} />
-        <LikeButton
-          postId={postId}
-          initialLiked={false}
-          initialLikeCount={likeCount}
-        />
+        <div className="flex items-center justify-center text-gray-500 gap-1">
+          <Heart
+            className={`w-4 h-4 ${liked ? 'fill-rose-400 text-rose-400' : ''}`}
+          />
+          <p className="text-sm font-semibold">{likeCount}</p>
+        </div>
       </div>
       <div className="flex items-center justify-between mb-4">
         {/* 뱃지 / 태그 영역 */}

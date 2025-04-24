@@ -1,23 +1,25 @@
 'use client';
 import ChoiceButton from '@/app/components/ChoiceButton';
 import { api } from '@/lib/axios';
+import { useOnboardingStore } from '@/store/onboardingStore';
 import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
 function OnboardingStep4() {
   const router = useRouter();
+  const persistMode = useUserStore((state) => state.persistMode);
 
-  const currTemperature = useUserStore(
+  const currTemperature = useOnboardingStore(
     (state) => state.onboardingInfo.currTemperature
   );
-  const selectedClothes = useUserStore(
+  const selectedClothes = useOnboardingStore(
     (state) => state.onboardingInfo.selectedClothes
   );
-  const selectedFeeling = useUserStore(
+  const selectedFeeling = useOnboardingStore(
     (state) => state.onboardingInfo.selectedFeeling
   );
-  const region_id = useUserStore(
+  const region_id = useOnboardingStore(
     (state) => state.onboardingInfo.selectedRegion.region_id
   );
 
@@ -49,26 +51,41 @@ function OnboardingStep4() {
 
   const handleButtonClick = async () => {
     try {
-      const uuid = useUserStore.getState().tempUser.user_id;
+      if (persistMode === 'pre-login') {
+        const uuid = useUserStore.getState().tempUser.user_id;
+        await api.post('/region-favorite', {
+          user_id: uuid,
+          region_id,
+          is_primary: true,
+        });
 
-      await api.post('/region-favorite', {
-        user_id: uuid,
-        region_id,
-        is_primary: true,
-      });
+        await api.patch('/user/update', {
+          user_id: uuid,
+          temperature_sensitivity,
+          onboarding_completed: true,
+        });
+        useUserStore.getState().clearTempUser();
+        useOnboardingStore.getState().clearOnboardingInfo();
+        useUserStore.getState().setPersistMode('post-login');
+        alert('온보딩 완료! 로그인 페이지로 이동합니다 😆');
+        router.push('/auth/login');
+      } else {
+        const uuid = useUserStore.getState().user.user_id;
+        await api.post('/region-favorite', {
+          user_id: uuid,
+          region_id,
+          is_primary: true,
+        });
 
-      await api.patch('/user/update', {
-        user_id: uuid,
-        temperature_sensitivity,
-        onboarding_completed: true
-      })
-
-      useUserStore.getState().clearTempUser();
-      useUserStore.getState().clearOnboardingInfo();
-      useUserStore.getState().setPersistMode('post-onboarding');
-
-      alert('온보딩 완료! 로그인 페이지로 이동합니다 😆');
-      router.push('/auth/login');
+        await api.patch('/user/update', {
+          user_id: uuid,
+          temperature_sensitivity,
+          onboarding_completed: true,
+        });
+        useOnboardingStore.getState().clearOnboardingInfo();
+        alert('온보딩 완료! 마이페이지로 이동합니다 😆');
+        router.push('/member');
+      }
     } catch (error: any) {
       alert(error.response?.data?.message);
     }

@@ -1,13 +1,13 @@
 'use client';
 
 import ChoiceButton from '@/app/components/ChoiceButton';
-import { useUserStore } from '@/store/userStore';
+import { useOnboardingStore } from '@/store/onboardingStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 function OnboardingStep2() {
   const router = useRouter();
-  const { setOnboardingInfo } = useUserStore();
+  const { setOnboardingInfo } = useOnboardingStore();
 
   const [selectedClothes, setSelectedClothes] = useState<number|null>(null);
 
