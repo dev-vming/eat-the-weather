@@ -15,6 +15,14 @@ export const SbLikeRepository: LikeRepository = {
     if (error) {
       throw new Error(`좋아요 추가 실패: ${error.message}`);
     }
+
+    // RPC 호출
+    const { error: rpcError } = await supabase.rpc('increment_like_count', {
+      p_post_id: item_id,
+      p_inc: 1,
+    });
+    if (rpcError)
+      throw new Error(`좋아요 카운트 RPC 실패: ${rpcError.message}`);
   },
 
   /**
@@ -31,6 +39,15 @@ export const SbLikeRepository: LikeRepository = {
 
     if (error) {
       throw new Error(`좋아요 제거 실패: ${error.message}`);
+    }
+
+    // RPC 호출로 post.like_count 차감
+    const { error: rpcError } = await supabase.rpc('decrement_like_count', {
+      p_post_id: item_id,
+      p_dec: 1,
+    });
+    if (rpcError) {
+      throw new Error(`좋아요 카운트 차감 실패: ${rpcError.message}`);
     }
   },
 

@@ -1,5 +1,4 @@
 'use client';
-import { Heart } from 'lucide-react';
 import SensitivityBadge from './SensitivityBadge';
 import PostUserBox from './PostUserBox';
 import LikeButton from './LikeButton';
@@ -44,7 +43,7 @@ export default function PostItem({
         {!my && (
           <LikeButton
             postId={postId}
-            initialLiked={false}
+            initialLiked={liked ?? false}
             initialLikeCount={likeCount}
           />
         )}
