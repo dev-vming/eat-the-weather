@@ -7,13 +7,36 @@ import { ComboboxDemo } from './components/ComBoBox';
 import { LocateFixed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+import { useUserStore } from '@/store/userStore';
+import { useCurrentWeather } from '@/lib/hooks/useWeather';
+
+import { useAutoLocation } from '@/lib/hooks/useAutoLocation';
+
 export default function HomePage() {
+  useAutoLocation();
+  const userName = useUserStore((state) => state.user.nickname);
+
+  const { selectedWeatherRegion } = useUserStore();
+  const { lat, lon } = selectedWeatherRegion ?? {};
+  const { data: weather, isLoading } = useCurrentWeather(lat, lon);
+  
+  const getNowTimeLabel = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const date = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    const weekday = ['일', '월', '화', '수', '목', '금', '토'][now.getDay()];
+    return `${month}.${date} (${weekday}) ${hour}:${minute} 현재`;
+  };
+
+  
   return (
     <main className="justify-center items-center flex flex-col h-screen w-full">
       <div className="flex flex-col">
         {/* 날짜 + 새로고침 아이콘 */}
         <div className="flex self-end items-center gap-1 mr-3.5">
-          <span className="text-sm">04.09 (화) 09:30 현재</span>
+          <span className="text-sm">{getNowTimeLabel()}</span>
           <RefreshCw className="text-gray-400 w-3" />
         </div>
 
@@ -26,13 +49,13 @@ export default function HomePage() {
 
       <div className="justify-center items-center flex flex-col">
         {/* 온도 */}
-        <div className="text-6xl font-bold mt-3">10ºC</div>
+        <div className="text-6xl font-bold mt-3">{weather?.main?.temp?.toFixed(1)}ºC</div>
 
         {/* 온도에 맞는 테루루 이미지 */}
         <img src="/sun.png" alt="Logo" className="w-auto h-65 md:h-80 mt-3" />
 
         {/* 날씨 설명 */}
-        <div className="mt-4 font-bold">김유저 님, </div>
+        <div className="mt-4 font-bold">{userName}님, </div>
         <div className="font-bold">얇은 패딩이 어울리는 날씨에요!</div>
 
         {/* 게시판 버튼 */}
