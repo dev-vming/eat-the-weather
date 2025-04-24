@@ -5,10 +5,11 @@ import React from 'react';
 import ChoiceButton from '@/app/components/ChoiceButton';
 import Image from 'next/image';
 import { useUserStore } from '@/store/userStore';
-
+import { useOnboardingStore } from '@/store/onboardingStore';
 
 function Onboarding() {
   const router = useRouter();
+  const persistMode = useUserStore((state) => state.persistMode);
 
   const handleStartOnboarding = () => {
     router.push('/onboarding/step1'); // Step1 페이지로 이동
@@ -16,10 +17,14 @@ function Onboarding() {
 
   const handleSkipOnboarding = async () => {
     try {
-      useUserStore.getState().clearTempUser();
-      useUserStore.getState().clearOnboardingInfo();
-      useUserStore.getState().setPersistMode('post-onboarding');
-      router.push('/auth/login');
+      useOnboardingStore.getState().clearOnboardingInfo();
+      if (persistMode === 'pre-login') {
+        useUserStore.getState().clearTempUser();
+        useUserStore.getState().setPersistMode('post-login');
+        router.push('/auth/login');
+      } else {
+        router.push('/mypage');
+      }
     } catch (error: any) {
       alert(error.response?.data?.message);
     }

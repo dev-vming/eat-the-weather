@@ -40,7 +40,7 @@ export default function KakaoCallbackPage() {
           useUserStore
             .getState()
             .setUser({ ...userRes.data, isAuthenticated: true });
-          useUserStore.getState().setPersistMode('post-onboarding');
+          useUserStore.getState().setPersistMode('post-login');
 
           alert('로그인 성공 ! 홈페이지로 이동합니다.');
           router.push('/');
@@ -55,7 +55,7 @@ export default function KakaoCallbackPage() {
         }
       } catch (err: any) {
         if (from === 'login' && err.response?.data?.message === '존재하지 않는 이메일입니다.') {
-          router.replace('/auth/signup');
+          router.replace('/auth/sign-up');
         } else {
           alert(err.response?.data?.message || '카카오 인증 실패');
           router.replace('/auth/login');
