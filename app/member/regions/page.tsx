@@ -8,7 +8,6 @@ import { UserRegionFavoriteViewDto } from '@/application/usecases/regionFavorite
 import { Region } from '@/domain/entities/Region';
 import { useUserStore } from '@/store/userStore';
 import { api } from '@/lib/axios';
-import { UserRegionFavorite } from '@/domain/entities/UserRegionFavorite';
 
 export default function MemberRegionsPage() {
   const [regions, setRegions] = useState<UserRegionFavoriteViewDto[]>([]);
