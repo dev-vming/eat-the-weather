@@ -7,6 +7,7 @@ import { RegionSearchCombobox } from '@/app/components/RegionSearchComboBox';
 import { UserRegionFavoriteViewDto } from '@/application/usecases/regionFavorite/dto/RegionFavoriteDto';
 import { Region } from '@/domain/entities/Region';
 import { useUserStore } from '@/store/userStore';
+import { api } from '@/lib/axios';
 
 export default function MemberRegionsPage() {
   const [regions, setRegions] = useState<UserRegionFavoriteViewDto[]>([]);
@@ -14,30 +15,27 @@ export default function MemberRegionsPage() {
   const [newRegion, setNewRegion] = useState<Region | undefined>(undefined);
   const uuid = useUserStore.getState().user.user_id;
 
+  const fetchRegions = async (userId: string): Promise<UserRegionFavoriteViewDto[]> => {
+    try {
+      const response = await api.get<UserRegionFavoriteViewDto[]>(`/region-favorite/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('지역 정보를 불러오는 데 실패했습니다:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
-    const fetchRegions = async () => {
-      const response: UserRegionFavoriteViewDto[] = [
-        {
-          user_id: 'user123',
-          region_id: '001',
-          region_name: '경기도 시흥시',
-          is_primary: true,
-          lat: 0,
-          lon: 0,
-        },
-        {
-          user_id: 'user123',
-          region_id: '002',
-          region_name: '서울특별시 강남구',
-          is_primary: false,
-          lat: 0,
-          lon: 0,
-        },
-      ];
-      setRegions(response);
+    const loadRegions = async () => {
+      try {
+        const data = await fetchRegions(uuid);
+        setRegions(data);
+      } catch (e) {
+        alert('지역 정보를 불러오는 데 실패했습니다.');
+      }
     };
-    fetchRegions();
-  }, []);
+    loadRegions();
+  }, [uuid]);
 
   const handleDelete = (region_id: string) => {
     setRegions((prev) => prev.filter((r) => r.region_id !== region_id));
@@ -54,6 +52,11 @@ export default function MemberRegionsPage() {
   };
 
   const handleSave = async () => {
+    const hasPrimary = regions.some((region) => region.is_primary);
+    if (!hasPrimary) {
+      alert('대표 지역을 하나 선택해주세요.');
+      return;
+    }
     console.log('저장할 지역:', regions);
   };
 
@@ -167,7 +170,7 @@ export default function MemberRegionsPage() {
         </div>
       </div>
 
-      <Button className="w-full mt-4" onClick={handleSave}>
+      <Button className="w-full mt-4 cursor-pointer" onClick={handleSave}>
         저장하기
       </Button>
     </div>
