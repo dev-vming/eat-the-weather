@@ -1,6 +1,6 @@
 'use client';
 
-import { useFavoriteRegion } from '@/lib/hooks/useFavoriteRegion';
+import { useFavoriteRegion } from '@/store/useFavoriteRegion';
 
 import { Check, ChevronsUpDown } from 'lucide-react';
 import * as React from 'react';
@@ -23,14 +23,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-// ✅ 유저 ID (임시 하드코딩 또는 로그인 연동되면 대체)
-const userId = '0696ef51-33cc-471d-a95c-265d9565ee06';
+
 
 export function ComboboxDemo() {
+  const user_id = useUserStore((state) => state.user.user_id);
+
   const { selectedRegion, setSelectedRegion } = useFavoriteRegion();
   const { setSelectedWeatherRegion, selectedWeatherRegion } = useUserStore();
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<string>(selectedWeatherRegion.name || '');
+  const [value, setValue] = React.useState<string>(selectedWeatherRegion?.name ?? '');
   const [regions, setRegions] = React.useState<{
     region_id: string;
     region_name: string;
@@ -42,8 +43,13 @@ export function ComboboxDemo() {
   // 🔁 API 호출
   React.useEffect(() => {
     const fetchRegions = async () => {
+      if (!user_id) {
+        console.warn('⚠️ user_id가 아직 준비되지 않았습니다.');
+        return;
+      }
+ 
       try {
-        const res = await fetch(`/api/region-favorite/${userId}`);
+        const res = await fetch(`/api/region-favorite/${user_id}`);
         const data = await res.json();
         setRegions(data);
       } catch (e) {
@@ -56,11 +62,31 @@ export function ComboboxDemo() {
     fetchRegions();
   }, []);
 
+
+  // ✅ 자동 위치 지역이 regions 배열에 없으면 추가
   React.useEffect(() => {
-    if (selectedWeatherRegion.name && !value) {
+    if (
+      selectedWeatherRegion &&
+      selectedWeatherRegion.region_id &&
+      !regions.find(r => r.region_name === selectedWeatherRegion.name)
+    ) {
+      setRegions(prev => [...prev, {
+        region_id: selectedWeatherRegion.region_id,
+        region_name: selectedWeatherRegion.name,
+        lat: selectedWeatherRegion.lat,
+        lon: selectedWeatherRegion.lon,
+      }]);
+    }
+  }, [selectedWeatherRegion, regions]);
+
+
+
+  React.useEffect(() => {
+    if (selectedWeatherRegion?.name && value !== selectedWeatherRegion.name) {
       setValue(selectedWeatherRegion.name);
     }
-  }, [selectedWeatherRegion.name]);
+  }, [selectedWeatherRegion?.name, value]);
+
 
 
   return (
@@ -72,7 +98,7 @@ export function ComboboxDemo() {
           aria-expanded={open}
           className="font-bold text-lg w-[14rem] justify-between bg-white"
         >
-          {value || '지역을 선택해주세요.'}
+          {value || selectedWeatherRegion?.name || '지역을 선택해주세요.'}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -103,7 +129,7 @@ export function ComboboxDemo() {
 
                         setSelectedWeatherRegion({
                           region_id: raw.region_id,
-                          name: raw.region_name,  // ✅ userStore에선 name으로 통일해뒀지!
+                          name: raw.region_name,
                           lat: raw.lat,
                           lon: raw.lon,
                         });

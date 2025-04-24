@@ -2,22 +2,37 @@ import { useEffect, useState } from 'react';
 import { useUserStore } from '@/store/userStore';
 import { useFavoriteRegion } from '@/store/useFavoriteRegion';
 import geoFindMe from '@/utils/geo';
+import { Region } from '@/domain/entities/Region';
 
 export const useAutoLocation = () => {
 
     const { selectedRegion, setSelectedRegion } = useFavoriteRegion();
     const { selectedWeatherRegion, setSelectedWeatherRegion } = useUserStore(); // ✅ 날씨 API용
-    const [regions, setRegions] = useState<Resion[]>([]); // 지역 목록
+    const [regions, setRegions] = useState<Region[]>([]); // 지역 목록
+
+    const user_id = useUserStore((state) => state.user.user_id);
 
     useEffect(() => {
+        if (!user_id || user_id.trim() === '') return;
+
         // 즐겨찾기 목록 미리 받아오기
         const fetchFavorites = async () => {
-            const res = await fetch(`/api/region-favorite/${user_id}`);
-            const data = await res.json();
-            setRegions(data);
+            try {
+                const res = await fetch(`/api/region-favorite/${user_id}`);
+                if (!res.ok) {
+                    console.warn("🚫 지역 즐겨찾기 fetch 실패");
+                    return;
+                }
+                const data = await res.json();
+                setRegions(data);
+            } catch (err) {
+                console.error("🧨 fetch 실패:", err);
+            }
         };
+
         fetchFavorites();
-    }, []);
+    }, [user_id]);
+    
 
     useEffect(() => {
         // 이미 설정되어 있으면 아무것도 안 함
@@ -36,13 +51,13 @@ export const useAutoLocation = () => {
                 const regionName = await res.json();
 
                 // 🎯 즐겨찾기 안에서 이 이름이 있는지 먼저 찾아보기!
-                const matchedRegion = regions.find(r => r.region_name === regionName);
+                const matchedRegion = regions.find(r => r.name === regionName);
 
                 if (matchedRegion) {
                     // 🎯 매칭되면 그 region 그대로 사용
                     setSelectedWeatherRegion({
                         region_id: matchedRegion.region_id,
-                        name: matchedRegion.region_name,
+                        name: matchedRegion.name,
                         lat: matchedRegion.lat,
                         lon: matchedRegion.lon,
                     });

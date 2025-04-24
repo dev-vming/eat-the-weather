@@ -1,6 +1,6 @@
 "use client"
 
-import { useFavoriteRegion } from '@/lib/hooks/useFavoriteRegion';
+import { useFavoriteRegion } from '@/store/useFavoriteRegion';
 import { useWeather } from '@/lib/hooks/useWeather';
 
 
@@ -29,12 +29,20 @@ export function Hourly() {
   const { lat, lon } = selectedRegion ?? {};
   const { data: weatherData, isLoading } = useWeather(lat, lon);
   const [selectedHour, setSelectedHour] = useState<any | null>();
-
+  
   const now = new Date();
-  const today = new Date().toISOString().slice(0, 10);
-  const hourlyData: HourlyWeatherEntry[] = weatherData?.list?.filter((item) =>
-    item.dt_txt.startsWith(today)
-  ) ?? [];
+  const today = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Seoul',
+  }).format(new Date());
+  
+  const hourlyData: HourlyWeatherEntry[] = weatherData?.list?.filter((item) => {
+
+    const localDate = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Asia/Seoul',
+    }).format(new Date(item.dt_txt));
+    return localDate === today;
+  }) ?? [];
+
 
   const chartData = hourlyData.map((item) => {
     const itemTime = new Date(item.dt_txt);
@@ -42,12 +50,17 @@ export function Hourly() {
 
     return {
       time: item.dt_txt.slice(11, 16),
-      temp_min: item.main.temp_min + (isAfter3Hours ? 5 : 0),
-      temp_max: item.main.temp_max + (isAfter3Hours ? 5 : 0),
+      temp_min: item.main.temp_min + (isAfter3Hours ? 3 : 0),
+      temp_max: item.main.temp_max + (isAfter3Hours ? 3 : 0),
       isAfter3Hours,
       raw: item,
     };
   });
+
+  
+  if (!lat || !lon) {
+    return <div className="text-center py-8 text-gray-500">⏳ 지역 정보 로딩 중...</div>;
+  }
 
   useEffect(() => {
     const init = async () => {
@@ -161,12 +174,12 @@ export function Hourly() {
             </div>
             {new Date(selectedHour.dt_txt).getTime() - now.getTime() >= -3 * 60 * 60 * 1000 ? (
               <>
-                <div className="mt-3">🌡️ 최고: {selectedHour.main.temp_max + 5}° / 최저: {selectedHour.main.temp_min + 5}°</div>
-                <div className="mt-3">🥶 체감 온도: {(selectedHour.main.feels_like + 5).toFixed(2)}°</div>
+                <div className="mt-3">🌡️ 최고: {(selectedHour.main.temp_max + 3).toFixed(2)}° / 최저: {(selectedHour.main.temp_min + 3).toFixed(2)}°</div>
+                <div className="mt-3">🥶 체감 온도: {(selectedHour.main.feels_like + 3).toFixed(2)}°</div>
               </>
             ) : (
               <>
-                <div className="mt-3">🌡️ 최고: {selectedHour.main.temp_max}° / 최저: {selectedHour.main.temp_min}°</div>
+                <div className="mt-3">🌡️ 최고: {selectedHour.main.temp_max.toFixed(2)}° / 최저: {selectedHour.main.temp_min.toFixed(2)}°</div>
                 <div className="mt-3">🥶 체감 온도: {selectedHour.main.feels_like.toFixed(2)}°</div>
               </>
             )}

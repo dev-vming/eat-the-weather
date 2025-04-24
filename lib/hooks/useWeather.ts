@@ -6,6 +6,7 @@ import { HourlyWeatherResponse, CurrentWeatherResponse } from '../types/weather'
 const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
 
 export const useWeather = (lat?: number, lon?: number) => {
+  
   return useQuery<HourlyWeatherResponse>({
     queryKey: ['hourlyWeather', lat, lon],
     queryFn: async () => {
@@ -22,6 +23,7 @@ export const useWeather = (lat?: number, lon?: number) => {
 };
 
 export const useCurrentWeather = (lat?: number, lon?: number) => {
+  
   return useQuery<CurrentWeatherResponse>({
     queryKey: ['homeWeather', lat, lon],
     queryFn: async () => {
