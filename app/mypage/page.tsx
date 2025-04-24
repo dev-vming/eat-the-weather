@@ -6,8 +6,8 @@ import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
 
 const linkItems = [
-  { href: '/posts', label: '작성한 게시물' },
-  { href: '/likes', label: '좋아요한 게시물' },
+  { href: '/mypage/posts', label: '작성한 게시물' },
+  { href: '/mypage/likes', label: '좋아요한 게시물' },
   { href: '/sensitivity', label: '날씨 민감도 관리' },
   { href: '/regions', label: '지역 관리' },
   { href: '/account', label: '계정 관리' },
