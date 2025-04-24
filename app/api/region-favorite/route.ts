@@ -33,15 +33,24 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const data = await req.json();
-
   try {
+    const body = await req.json();
+    const { user_id, regions } = body;
+
+    if (!user_id || !Array.isArray(regions)) {
+      return NextResponse.json({ error: 'user_id와 regions 배열이 필요합니다.' }, { status: 400 });
+    }
+
     const updatedFavorites = await UpdateRegionFavoriteUsecase(
       SbRegionFavoriteRepository(),
-      data
+      user_id,
+      regions
     );
+
     return NextResponse.json(updatedFavorites);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
+
+

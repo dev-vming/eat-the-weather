@@ -8,6 +8,7 @@ import { UserRegionFavoriteViewDto } from '@/application/usecases/regionFavorite
 import { Region } from '@/domain/entities/Region';
 import { useUserStore } from '@/store/userStore';
 import { api } from '@/lib/axios';
+import { UserRegionFavorite } from '@/domain/entities/UserRegionFavorite';
 
 export default function MemberRegionsPage() {
   const [regions, setRegions] = useState<UserRegionFavoriteViewDto[]>([]);
@@ -53,11 +54,21 @@ export default function MemberRegionsPage() {
 
   const handleSave = async () => {
     const hasPrimary = regions.some((region) => region.is_primary);
-    if (!hasPrimary) {
+    if (!hasPrimary && regions.length>0) {
       alert('대표 지역을 하나 선택해주세요.');
       return;
     }
-    console.log('저장할 지역:', regions);
+  
+    try {
+      await api.patch('/region-favorite', {
+        user_id: uuid,
+        regions: regions.map(({ region_id, is_primary }) => ({ region_id, is_primary })),
+      });
+      alert('저장되었습니다!');
+    } catch (err) {
+      alert('저장 중 오류가 발생했습니다.');
+      console.error(err);
+    }
   };
 
   const handleAddClick = () => {
