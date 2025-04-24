@@ -54,9 +54,8 @@ export default function ProfilePage() {
       <div className="divide-y border-y-2 border-gray-200">
         {linkItems.map((item) =>
           item.label === '로그아웃' ? (
-            <div onClick={handleLogout}>
+            <div onClick={handleLogout} key={item.href + item.label}>
               <LinkItem
-                key={item.href + item.label}
                 href={item.href}
                 label={item.label}
               />
