@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
 import { Label } from '@/components/ui/label';
+import KakaoLoginButton from '@/app/components/KakaoButton';
+import { User } from '@supabase/supabase-js';
 import { useUserStore } from '@/store/userStore';
-import { User } from '@/domain/entities/User';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function LoginPage() {
       const userRes = await api.get<User>(`/user/${email}`);
       
       useUserStore.getState().setUser({...userRes.data,isAuthenticated:true});
-      useUserStore.getState().setPersistMode('post-signup');
+      useUserStore.getState().setPersistMode('post-onboarding');
 
       alert('로그인 성공!');
       router.push('/');
@@ -97,9 +98,7 @@ export default function LoginPage() {
         이메일 로그인
       </Button>
 
-      <Button variant="ghost" className="w-100 h-11 m-2 bg-amber-200 md:w-90">
-        카카오 로그인
-      </Button>
+      <KakaoLoginButton state={"login"} />
 
       <Link href="/auth/sign-up" className={Style.Link}>
         회원가입

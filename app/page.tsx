@@ -2,16 +2,15 @@
 
 import Link from 'next/link';
 import { RefreshCw } from 'lucide-react';
-import * as React from "react"
+import * as React from 'react';
 import { ComboboxDemo } from './components/ComBoBox';
 import { LocateFixed } from 'lucide-react';
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   return (
     <main className="justify-center items-center flex flex-col h-screen w-full">
       <div className="flex flex-col">
-
         {/* 날짜 + 새로고침 아이콘 */}
         <div className="flex self-end items-center gap-1 mr-3.5">
           <span className="text-sm">04.09 (화) 09:30 현재</span>
@@ -40,11 +39,8 @@ export default function HomePage() {
         <Link href="/posts">
           <Button
             variant="outline"
-            className="w-100 md: w-90 
-           h-11 m-2 mt-3
-           bg-red-300
-           rounded-4xl
-           font-bold">
+            className="w-100 md: w-90 h-11 m-2 mt-3 bg-red-300 rounded-4xl font-bold"
+          >
             OO동 유저들의 실시간 날씨는? <br />
             N명의 유저 대화 중
           </Button>

@@ -8,6 +8,7 @@ import { PostView } from '@/domain/entities/PostView';
 import { api } from '@/lib/axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 
 export default function PostPage() {
   const router = useRouter();
@@ -81,28 +82,30 @@ export default function PostPage() {
         )}
         {posts.map((post) => (
           <div key={post.post_id}>
-            <PostItem
-              content={post.content}
-              date={new Date(post.created_at).toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })}
-              nickname={post.user.nickname}
-              tags={[
-                ...(post.has_weather_tag ? ['날씨'] : []),
-                ...(post.has_outfit_tag ? ['옷차림'] : []),
-              ]}
-              liked={false}
-              likeCount={post.like_count}
-              sensitivity={post.temperature_sensitivity}
-              image={post.post_image}
-              detail={false}
-            />
-            <div className="border-b" />
+            <Link href={`/posts/${post.post_id}`}>
+              <PostItem
+                content={post.content}
+                date={new Date(post.created_at).toLocaleString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+                nickname={post.user.nickname}
+                tags={[
+                  ...(post.has_weather_tag ? ['날씨'] : []),
+                  ...(post.has_outfit_tag ? ['옷차림'] : []),
+                ]}
+                liked={false}
+                likeCount={post.like_count}
+                sensitivity={post.temperature_sensitivity}
+                image={post.post_image}
+                detail={false}
+              />
+              <div className="border-b" />
+            </Link>
           </div>
         ))}
         <div ref={loadMoreRef} className="h-8 flex justify-center items-center">
