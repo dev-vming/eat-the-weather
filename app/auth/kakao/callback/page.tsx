@@ -40,7 +40,7 @@ export default function KakaoCallbackPage() {
           useUserStore
             .getState()
             .setUser({ ...userRes.data, isAuthenticated: true });
-          useUserStore.getState().setPersistMode('post-onboarding');
+          useUserStore.getState().setPersistMode('post-login');
 
           alert('로그인 성공 ! 홈페이지로 이동합니다.');
           router.push('/');

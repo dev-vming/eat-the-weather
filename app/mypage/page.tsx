@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import LinkItem from '../components/LinkItem';
 import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
+import { useOnboardingStore } from '@/store/onboardingStore';
 
 const linkItems = [
   { href: '/mypage/posts', label: '작성한 게시물' },
@@ -23,8 +24,9 @@ export default function ProfilePage() {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
 
+    useOnboardingStore.getState().clearOnboardingInfo();
     useUserStore.getState().clearUser();
-    useUserStore.getState().setPersistMode('pre-onboarding');
+    useUserStore.getState().setPersistMode('pre-login');
     alert('로그아웃 되었습니다 😇');
 
     router.push('/');

@@ -3,7 +3,7 @@
 import ChoiceButton from '@/app/components/ChoiceButton';
 import { RegionSearchCombobox } from '@/app/components/RegionSearchComboBox';
 import { Region } from '@/domain/entities/Region';
-import { useUserStore } from '@/store/userStore';
+import { useOnboardingStore } from '@/store/onboardingStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 function OnboardingStep1 () {
   const router = useRouter();
-  const { setOnboardingInfo } = useUserStore();
+  const { setOnboardingInfo } = useOnboardingStore();
 
   const [selectedRegion, setSelectedRegion] = useState<Region | undefined>(undefined);
   const temperature = 17;
