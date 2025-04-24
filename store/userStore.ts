@@ -49,17 +49,19 @@ type UserStore = {
 
 export const useUserStore = create<UserStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       tempUser: defaultTempUser,
-      setTempUser: (data) => set((state) => ({
-        tempUser: { ...state.tempUser, ...data },
-      })),
+      setTempUser: (data) =>
+        set((state) => ({
+          tempUser: { ...state.tempUser, ...data },
+        })),
       clearTempUser: () => set({ tempUser: defaultTempUser }),
 
       user: defaultUser,
-      setUser: (data) => set((state) => ({
-        user: { ...state.user, ...data },
-      })),
+      setUser: (data) =>
+        set((state) => ({
+          user: { ...state.user, ...data },
+        })),
       clearUser: () => set({ user: defaultUser }),
 
       persistMode: 'pre-login',
@@ -67,11 +69,19 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: 'user-store',
-      partialize: (state) => ({
-        tempUser: state.tempUser,
-        user: state.user,
-        persistMode: state.persistMode,
-      }),
+      partialize: (state) => {
+        if (state.persistMode === 'post-login') {
+          return {
+            user: state.user,
+            persistMode: state.persistMode,
+          };
+        } else {
+          return {
+            tempUser: state.tempUser,
+            persistMode: state.persistMode,
+          };
+        }
+      },
     }
   )
 );

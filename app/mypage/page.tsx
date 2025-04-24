@@ -9,7 +9,7 @@ import { useOnboardingStore } from '@/store/onboardingStore';
 const linkItems = [
   { href: '/mypage/posts', label: '작성한 게시물' },
   { href: '/mypage/likes', label: '좋아요한 게시물' },
-  { href: '/sensitivity', label: '날씨 민감도 관리' },
+  { href: '/onboarding', label: '날씨 민감도 관리' },
   { href: '/regions', label: '지역 관리' },
   { href: '/account', label: '계정 관리' },
   { href: '', label: '로그아웃' },
