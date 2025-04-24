@@ -41,12 +41,13 @@ export default function PostItem({
         onClick={() => console.log('Like area clicked')}
       >
         <PostUserBox nickname={nickname} date={date} />
-        <div className="flex items-center justify-center text-gray-500 gap-1">
-          <Heart
-            className={`w-4 h-4 ${liked ? 'fill-rose-400 text-rose-400' : ''}`}
+        {!my && (
+          <LikeButton
+            postId={postId}
+            initialLiked={false}
+            initialLikeCount={likeCount}
           />
-          <p className="text-sm font-semibold">{likeCount}</p>
-        </div>
+        )}
       </div>
       <div className="flex items-center justify-between mb-4">
         {/* 뱃지 / 태그 영역 */}
