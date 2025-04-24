@@ -3,18 +3,18 @@
 import ChoiceButton from '@/app/components/ChoiceButton';
 import { RegionSearchCombobox } from '@/app/components/RegionSearchComboBox';
 import { Region } from '@/domain/entities/Region';
+import { useCurrentWeather } from '@/lib/hooks/useWeather';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-
-// TODO : 해당 지역 날씨 불러오는 로직 생성
 
 function OnboardingStep1 () {
   const router = useRouter();
   const { setOnboardingInfo } = useOnboardingStore();
 
   const [selectedRegion, setSelectedRegion] = useState<Region | undefined>(undefined);
-  const temperature = 17;
+  const { data } = useCurrentWeather(selectedRegion?.lat, selectedRegion?.lon);
+  const temperature = data && Math.round(data.main.temp);
 
   const handlePrevious = () => {
     router.push('/onboarding');
