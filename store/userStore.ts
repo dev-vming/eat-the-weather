@@ -73,8 +73,12 @@ type UserStore = {
   setUser: (data: Partial<User>) => void;
   clearUser: () => void;
 
-  selectedWeatherRegion: Region;
+  selectedWeatherRegion: Region | null;
   setSelectedWeatherRegion: (region: Region) => void;
+
+  initialRegion: Region | null;
+  setInitialRegion: (region: Region) => void;
+  clearInitialRegion: () => void;
 };
 
 export const useUserStore = create<UserStore>()(
@@ -113,14 +117,17 @@ export const useUserStore = create<UserStore>()(
       persistMode: 'pre-onboarding',
       setPersistMode: (mode) => set({ persistMode: mode }),
 
-      selectedWeatherRegion: {
-        region_id: 'b32f5114-e015-4ac5-afba-0375f6e2c5c5',
-        name: '서울특별시 중구',
-        lat: 37.5638077703601,
-        lon: 126.997555182293,
-      },
+      selectedWeatherRegion: null,
       setSelectedWeatherRegion: (region) =>
         set(() => ({ selectedWeatherRegion: region })),
+
+      initialRegion: null,
+      setInitialRegion: (region) =>
+        set(() => ({ initialRegion: region })),
+      
+      clearInitialRegion: () =>
+        set(() => ({ initialRegion: null })),
+
     }),
 
     
@@ -171,6 +178,7 @@ export const useUserStore = create<UserStore>()(
           return {
             user: state.user,
             selectedWeatherRegion: state.selectedWeatherRegion,
+            initialRegion: state.initialRegion,
             persistMode: state.persistMode,
           } as UserStore;
         } else {
