@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { EmailSignupRequestDto } from '@/application/usecases/auth/dto/AuthDto';
+import { SignupRequestDto } from '@/application/usecases/auth/dto/AuthDto';
 import { SbUserRepository } from '@/infra/repositories/supabase/SbUserRepository';
 import { EmailSignupUsecase } from '@/application/usecases/auth/EmailSignupUsecase';
 
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       onboarding_completed,
       temperature_sensitivity,
       provider,
-    } = body as EmailSignupRequestDto;
+    } = body as SignupRequestDto;
 
     const {user} = await EmailSignupUsecase(SbUserRepository(), {
       email,

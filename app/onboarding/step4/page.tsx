@@ -3,11 +3,10 @@ import ChoiceButton from '@/app/components/ChoiceButton';
 import { api } from '@/lib/axios';
 import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 function OnboardingStep4() {
   const router = useRouter();
-  const { setTempUser, clearTempUser, clearOnboardingInfo } = useUserStore();
 
   const currTemperature = useUserStore(
     (state) => state.onboardingInfo.currTemperature
@@ -48,33 +47,30 @@ function OnboardingStep4() {
     return feelingAdjusted;
   }, [selectedFeeling, weatherFit]);
 
-  useEffect(() => {
-    setTempUser({ temperature_sensitivity });
-  }, [temperature_sensitivity, setTempUser]);
-
   const handleButtonClick = async () => {
     try {
-      const userData = {
-        ...useUserStore.getState().tempUser,
-        onboarding_completed: true,
-      };
-
-      const uuid = await api.post('/auth/sign-up', userData);
+      const uuid = useUserStore.getState().tempUser.user_id;
 
       await api.post('/region-favorite', {
-        user_id: uuid.data,
+        user_id: uuid,
         region_id,
         is_primary: true,
       });
 
+      await api.patch('/user/update', {
+        user_id: uuid,
+        temperature_sensitivity,
+        onboarding_completed: true
+      })
+
       useUserStore.getState().clearTempUser();
       useUserStore.getState().clearOnboardingInfo();
-      useUserStore.getState().setPersistMode('post-signup');
+      useUserStore.getState().setPersistMode('post-onboarding');
 
-      alert('회원가입 성공! 로그인 페이지로 이동합니다 😆');
+      alert('온보딩 완료! 로그인 페이지로 이동합니다 😆');
       router.push('/auth/login');
     } catch (error: any) {
-      alert(error.response?.data?.message || '회원가입 실패 🥲');
+      alert(error.response?.data?.message);
     }
   };
 

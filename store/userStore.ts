@@ -5,15 +5,14 @@ import { persist } from 'zustand/middleware';
 interface UserInfo {
   email: string;
   nickname: string;
-  password?: string;
+  provider: string;
+  profile_image: string;
   onboarding_completed: boolean;
   temperature_sensitivity: number;
-  provider: string;
 }
 
-interface AdditionalInfo {
+interface CommonUserInfo {
   user_id: string;
-  profile_image: string;
   isAuthenticated: boolean;
 }
 
@@ -24,17 +23,15 @@ interface OnboardingInfo {
   selectedFeeling: number;
 }
 
-type User = UserInfo & AdditionalInfo;
+type User = UserInfo & CommonUserInfo;
 
-const defaultUserInfo: UserInfo = {
-  email: '',
-  nickname: '',
-  password: '',
-  onboarding_completed: false,
-  temperature_sensitivity: 0,
-  provider: '',
+// 회원가입 이후 온보딩 이후 업데이트 할 정보 초기값
+const defaultTempUser: CommonUserInfo = {
+  user_id: '',
+  isAuthenticated: false,
 };
 
+// 온보딩 중 받아오는 정보 초기값
 const defaultOnboardingInfo: OnboardingInfo = {
   selectedRegion: {
     region_id: '',
@@ -47,21 +44,25 @@ const defaultOnboardingInfo: OnboardingInfo = {
   selectedFeeling: 0,
 };
 
+// 사용자가 로그인 후 받아오는 유저 정보 초기값
 const defaultUser: User = {
-  ...defaultUserInfo,
-  user_id: '',
+  ...defaultTempUser,
+  email: '',
+  nickname: '',
+  provider: '',
   profile_image: '',
-  isAuthenticated: false,
+  onboarding_completed: false,
+  temperature_sensitivity: 0,
 };
 
-type PersistMode = 'pre-signup' | 'post-signup';
+type PersistMode = 'pre-onboarding' | 'post-onboarding';
 
 type UserStore = {
   persistMode: PersistMode;
   setPersistMode: (mode: PersistMode) => void;
 
-  tempUser: UserInfo;
-  setTempUser: (data: Partial<UserInfo>) => void;
+  tempUser: CommonUserInfo;
+  setTempUser: (data: Partial<CommonUserInfo>) => void;
   clearTempUser: () => void;
 
   onboardingInfo: OnboardingInfo;
@@ -79,7 +80,7 @@ type UserStore = {
 export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
-      tempUser: { ...defaultUserInfo },
+      tempUser: { ...defaultTempUser },
       setTempUser: (data) =>
         set((state) => ({
           tempUser: {
@@ -87,7 +88,7 @@ export const useUserStore = create<UserStore>()(
             ...data,
           },
         })),
-      clearTempUser: () => set({ tempUser: { ...defaultUserInfo } }),
+      clearTempUser: () => set({ tempUser: { ...defaultTempUser } }),
 
       onboardingInfo: { ...defaultOnboardingInfo },
       setOnboardingInfo: (data) =>
@@ -109,7 +110,7 @@ export const useUserStore = create<UserStore>()(
           },
         })),
       clearUser: () => set({ user: { ...defaultUser } }),
-      persistMode: 'pre-signup',
+      persistMode: 'pre-onboarding',
       setPersistMode: (mode) => set({ persistMode: mode }),
 
       selectedWeatherRegion: {
@@ -141,16 +142,16 @@ export const useUserStore = create<UserStore>()(
         
           let stateToStore: Partial<UserStore> = { persistMode: mode };
         
-          if (mode === 'post-signup') {
+          if (mode === 'post-onboarding') {
             stateToStore = {
               user: parsed.state.user,
-              persistMode: 'post-signup',
+              persistMode: 'post-onboarding',
             };
           } else {
             stateToStore = {
               tempUser: parsed.state.tempUser,
               onboardingInfo: parsed.state.onboardingInfo,
-              persistMode: 'pre-signup',
+              persistMode: 'pre-onboarding',
             };
           }
         
@@ -166,7 +167,7 @@ export const useUserStore = create<UserStore>()(
       },
       partialize: (state) => {
         // persistMode에 따른 최소한의 상태만 저장하도록 설정
-        if (state.persistMode === 'post-signup') {
+        if (state.persistMode === 'post-onboarding') {
           return {
             user: state.user,
             selectedWeatherRegion: state.selectedWeatherRegion,
