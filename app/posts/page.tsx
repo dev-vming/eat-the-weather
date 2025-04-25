@@ -9,12 +9,19 @@ import { api } from '@/lib/axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useUserStore } from '@/store/userStore';
 
 export default function PostPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, selectedWeatherRegion } = useUserStore();
 
-  const region_id = searchParams.get('region_id') ?? undefined;
+  // region_id: 선택된 지역이 없으면 서울시 중구로 대체(임시)
+  const region_id =
+    selectedWeatherRegion?.region_id ?? 'b32f5114-e015-4ac5-afba-0375f6e2c5c5';
+  // user_id: 항상 현재 로그인 유저
+  const user_id = user.user_id;
+
   const order_by =
     (searchParams.get('order_by') as 'created_at' | 'like_count') ??
     'created_at';
@@ -33,14 +40,21 @@ export default function PostPage() {
     status,
     error,
   } = useInfiniteQuery<{ posts: PostView[]; nextCursor?: string }, Error>({
-    queryKey: ['posts', region_id, order_by, has_outfit_tag, has_weather_tag],
+    queryKey: [
+      'posts',
+      region_id,
+      user_id,
+      order_by,
+      has_outfit_tag,
+      has_weather_tag,
+    ],
     initialPageParam: undefined,
 
-    queryFn: async ({
-      pageParam = undefined,
-    }): Promise<{ posts: PostView[]; nextCursor?: string }> => {
+    queryFn: async ({ pageParam = undefined }) => {
       const params = new URLSearchParams();
-      if (region_id) params.set('region_id', region_id);
+
+      params.set('region_id', region_id);
+      params.set('user_id', user_id);
       params.set('order_by', order_by);
       if (has_outfit_tag !== undefined)
         params.set('has_outfit_tag', String(has_outfit_tag));
@@ -53,8 +67,7 @@ export default function PostPage() {
       );
       return res.data;
     },
-    getNextPageParam: (lastPage: { posts: PostView[]; nextCursor?: string }) =>
-      lastPage.nextCursor,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
   useEffect(() => {
@@ -69,7 +82,6 @@ export default function PostPage() {
     return () => obs.disconnect();
   }, [fetchNextPage, hasNextPage]);
 
-  // 모든 페이지의 posts 합치기
   const posts: PostView[] = data?.pages.flatMap((page) => page.posts) ?? [];
 
   return (
@@ -82,8 +94,9 @@ export default function PostPage() {
         )}
         {posts.map((post) => (
           <div key={post.post_id}>
-            <Link href={`/posts/${post.post_id}`}>
+            <Link href={`/posts/${post.post_id}`} className="z-0">
               <PostItem
+                postId={post.post_id}
                 content={post.content}
                 date={new Date(post.created_at).toLocaleString('ko-KR', {
                   year: 'numeric',
@@ -98,7 +111,7 @@ export default function PostPage() {
                   ...(post.has_weather_tag ? ['날씨'] : []),
                   ...(post.has_outfit_tag ? ['옷차림'] : []),
                 ]}
-                liked={false}
+                liked={post.has_liked}
                 likeCount={post.like_count}
                 sensitivity={post.temperature_sensitivity}
                 image={post.post_image}
