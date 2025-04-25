@@ -169,8 +169,9 @@ export const SbPostRepository: PostRepository = {
     if (error) throw new Error('게시글 삭제 실패');
   },
 
-  /** 게시물 상세 요청 */
-  async getById(postId: string): Promise<PostView> {
+  /** 게시물 상세 요청 (with has_liked) */
+  async getById(postId: string, userId: string): Promise<PostView> {
+    // 1) view에서 post 불러오기
     const { data, error } = await supabase
       .from('post_view')
       .select('*')
@@ -182,7 +183,39 @@ export const SbPostRepository: PostRepository = {
       throw new Error('게시글이 존재하지 않거나 조회에 실패했습니다.');
     }
 
-    return data as PostView;
+    // 2) 현재 유저의 좋아요 여부 조회
+    let hasLiked = false;
+    if (userId) {
+      const { data: likeData, error: likeError } = await supabase
+        .from('like')
+        .select('post_id')
+        .eq('user_id', userId)
+        .eq('post_id', postId)
+        .single();
+
+      if (!likeError && likeData) {
+        hasLiked = true;
+      }
+    }
+
+    // 3) 최종 반환형에 맞춰 매핑
+    return {
+      post_id: data.post_id,
+      content: data.content,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      has_outfit_tag: data.has_outfit_tag,
+      has_weather_tag: data.has_weather_tag,
+      temperature_sensitivity: data.temperature_sensitivity,
+      post_image: data.post_image,
+      like_count: data.like_count,
+      has_liked: hasLiked,
+      user: {
+        user_id: data.user.user_id,
+        nickname: data.user.nickname,
+        profile_image: data.user.profile_image,
+      },
+    };
   },
 
   async getByUserId(userId: string): Promise<Post[]> {
