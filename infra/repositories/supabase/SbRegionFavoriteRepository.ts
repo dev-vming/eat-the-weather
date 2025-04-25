@@ -39,13 +39,15 @@ export const SbRegionFavoriteRepository = (): RegionFavoriteRepogitory => ({
 
     return data;
   },
-  async getByUserId(user_id) {
+  async getByUserId(user_id: string) {
     const { data, error } = await supabase
       .from('user_favorite_regions_view')
       .select('*')
-      .eq('user_id', user_id);
-
+      .eq('user_id', user_id)
+      .order('is_primary', { ascending: false }) 
+      .order('region_name', { ascending: true }); 
+  
     if (error) throw new Error('유저 아이디로 지역 즐겨찾기 검색 실패');
     return data ?? [];
-  },
+  }
 });

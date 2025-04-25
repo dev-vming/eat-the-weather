@@ -10,4 +10,6 @@ export interface Post {
   has_outfit_tag?: boolean;
   has_weather_tag?: boolean;
   like_count?: number; // 좋아요 수 (optional)
+
+  is_liked?: boolean; // 현재 유저가 좋아요를 눌렀는지 여부 (optional)
 }

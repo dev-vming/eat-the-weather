@@ -14,19 +14,21 @@ import { useUserStore } from '@/store/userStore';
 
 export default function PostDetailPage() {
   const params = useParams();
-  const post_id =
-    typeof params === 'object' && 'post-id' in params
-      ? params['post-id']
-      : undefined;
+  const post_id = params['post-id'];
   const user_id = useUserStore((state) => state.user.user_id);
   const [postData, setPostData] = useState<PostView | null>(null);
   const [comments, setComments] = useState<GetCommentViewDto[]>([]);
   const [inputComment, setInputComment] = useState<string>('');
 
   useEffect(() => {
+    // post_id, user_id 둘 다 있어야 호출
+    if (!post_id || !user_id) return;
+
     const fetchPost = async () => {
       try {
-        const res = await api.get<{ post: PostView }>(`/posts/${post_id}`);
+        const res = await api.get<{ post: PostView }>(`/posts/${post_id}`, {
+          headers: { 'x-user-id': user_id },
+        });
         setPostData(res.data.post);
       } catch (error) {
         console.error('게시글 상세 조회 실패:', error);
@@ -34,13 +36,14 @@ export default function PostDetailPage() {
     };
 
     if (post_id && typeof post_id === 'string') fetchPost();
-  }, [post_id]);
-
+  }, [post_id, user_id]);
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await api.get<GetCommentViewDto[]>(`/posts/${post_id}/comments`);
+        const res = await api.get<GetCommentViewDto[]>(
+          `/posts/${post_id}/comments`
+        );
         setComments(res.data);
       } catch (error) {
         console.error('댓글 불러오기 실패:', error);
@@ -61,7 +64,9 @@ export default function PostDetailPage() {
         content: inputComment,
       });
       // 댓글 다시 불러오기
-      const res = await api.get<GetCommentViewDto[]>(`/posts/${post_id}/comments`);
+      const res = await api.get<GetCommentViewDto[]>(
+        `/posts/${post_id}/comments`
+      );
       setComments(res.data);
 
       // 입력창 초기화
@@ -79,6 +84,7 @@ export default function PostDetailPage() {
       {/* 게시물 영역 */}
       <div className="pt-2">
         <PostItem
+          postId={post_id as string}
           content={postData.content}
           date={new Date(postData.created_at).toLocaleString('ko-KR', {
             year: 'numeric',
@@ -93,7 +99,7 @@ export default function PostDetailPage() {
             ...(postData.has_weather_tag ? ['날씨'] : []),
             ...(postData.has_outfit_tag ? ['옷차림'] : []),
           ]}
-          liked={false}
+          liked={postData.has_liked}
           likeCount={postData.like_count}
           sensitivity={postData.temperature_sensitivity}
           image={postData.post_image}
@@ -112,6 +118,7 @@ export default function PostDetailPage() {
 
       {/* 댓글 리스트 */}
       <div className="flex-1 overflow-y-auto pr-2 mb-2">
+
         {post_id && (
           <CommentItems
            comments={comments} post_id={post_id}
@@ -133,12 +140,14 @@ export default function PostDetailPage() {
           onChange={(e) => setInputComment(e.target.value)}
           value={inputComment}
         />
-        <Button variant="default" className="text-sm px-3"
-          onClick={handleCommentSubmit}>
+        <Button
+          variant="default"
+          className="text-sm px-3"
+          onClick={handleCommentSubmit}
+        >
           등록
         </Button>
       </div>
     </div>
   );
 }
-

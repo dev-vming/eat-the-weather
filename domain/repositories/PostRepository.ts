@@ -8,7 +8,7 @@ export interface PostRepository {
   update(post: Post): Promise<void>;
   delete(postId: string): Promise<void>;
 
-  getById(postId: string): Promise<PostView>;
+  getById(postId: string, userId: string): Promise<PostView>;
   getAll(filter: PostFilter): Promise<PostView[]>;
 
   getByUserId(userId: string): Promise<Post[]>;
