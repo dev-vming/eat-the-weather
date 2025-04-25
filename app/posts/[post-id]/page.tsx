@@ -97,6 +97,7 @@ export default function PostDetailPage() {
             minute: '2-digit',
             hour12: true,
           })}
+          profileImage={postData.user.profile_image}
           nickname={postData.user.nickname}
           tags={[
             ...(postData.has_weather_tag ? ['날씨'] : []),

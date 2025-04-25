@@ -12,7 +12,7 @@ function Onboarding() {
   const persistMode = useUserStore((state) => state.persistMode);
 
   const handleStartOnboarding = () => {
-    router.push('/onboarding/step1'); // Step1 페이지로 이동
+    router.push('/onboarding/step1'); 
   };
 
   const handleSkipOnboarding = async () => {

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import PostUserBox from '@/app/components/PostUserBox';
 import { BackButton } from './BackButton';
+import { useUserStore } from '@/store/userStore';
 
 interface PostFormProps {
   initialContent?: string;
@@ -30,6 +31,8 @@ export default function PostForm({
   const isTagChecked = clothingChecked || weatherChecked;
   const isContentValid = content.trim().length > 0;
   const isFormValid = isTagChecked && isContentValid;
+
+  const { user } = useUserStore();
 
   const getPlaceholder = () => {
     if (isEdit) return '';
@@ -57,7 +60,7 @@ export default function PostForm({
         </h1>
       </div>
       <div className="mt-15">
-        <PostUserBox nickname="글 작성자" />
+        <PostUserBox nickname={user.nickname} profileImage={user.profile_image} />
         <div className="w-full max-w-xl flex flex-col gap-4 mt-4">
           <div>
             <span className="text-xs font-semibold text-gray-500">

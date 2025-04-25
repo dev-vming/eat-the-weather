@@ -15,6 +15,7 @@ export interface PostProps {
   sensitivity: number;
   detail?: boolean;
   my?: boolean;
+  profileImage?: string;
 }
 
 export default function PostItem({
@@ -29,6 +30,7 @@ export default function PostItem({
   sensitivity,
   detail,
   my,
+  profileImage,
 }: PostProps) {
   return (
     <div
@@ -39,7 +41,7 @@ export default function PostItem({
         className="flex justify-between mb-3 z-10 hover:bg-gray-50 cursor-pointer"
         onClick={() => console.log('Like area clicked')}
       >
-        <PostUserBox nickname={nickname} date={date} />
+        <PostUserBox nickname={nickname} date={date} profileImage={profileImage} />
         {!my && (
           <LikeButton
             postId={postId}
