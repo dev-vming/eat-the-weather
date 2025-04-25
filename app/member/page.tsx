@@ -82,6 +82,14 @@ export default function ProfilePage() {
         setIsEditing(false);
         return;
       }
+
+      if (isNicknameChanged) {
+        const checkRes = await api.post<{available: boolean}>('/auth/check-nickname', { nickname });
+        if (!checkRes.data.available) {
+          alert('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.');
+          return;
+        }
+      }
   
       // 수정 데이터 구성
       const payload: {
