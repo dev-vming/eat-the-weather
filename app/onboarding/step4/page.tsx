@@ -1,5 +1,6 @@
 'use client';
-import ChoiceButton from '@/app/components/ChoiceButton';
+
+import { Button } from '@/components/ui/button';
 import { api } from '@/lib/axios';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useUserStore } from '@/store/userStore';
@@ -49,6 +50,7 @@ function OnboardingStep4() {
     return feelingAdjusted;
   }, [selectedFeeling, weatherFit]);
 
+
   const handleButtonClick = async () => {
     try {
       if (persistMode === 'pre-login') {
@@ -71,11 +73,6 @@ function OnboardingStep4() {
         router.push('/auth/login');
       } else {
         const uuid = useUserStore.getState().user.user_id;
-        await api.post('/region-favorite', {
-          user_id: uuid,
-          region_id,
-          is_primary: true,
-        });
 
         await api.patch('/user/update', {
           user_id: uuid,
@@ -107,12 +104,12 @@ function OnboardingStep4() {
       <p className="text-center text-xs text-gray-400 mb-8">
         이 정보는 "마이페이지"에서 변경할 수 있어!
       </p>
-      <ChoiceButton
+      <Button
         className="w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
         onClick={handleButtonClick}
       >
         고마워! 잘 부탁해!
-      </ChoiceButton>
+      </Button>
     </div>
   );
 }

@@ -41,18 +41,12 @@ export const SbPostRepository: PostRepository = {
     };
   },
 
-  // 무한스크롤 등 페이징용 전체 조회
   async getAll(filter: PostFilter): Promise<PostView[]> {
     let query = supabase.from('post_view').select('*');
 
     // 지역 필터
     if (filter.region_id) {
       query = query.eq('region_id', filter.region_id);
-    }
-
-    // 사용자 필터 (내 게시글 보기 등)
-    if (filter.user_id) {
-      query = query.eq('user_id', filter.user_id);
     }
 
     // 민감도 매칭 필터
@@ -117,6 +111,21 @@ export const SbPostRepository: PostRepository = {
       throw new Error('게시글 조회 실패');
     }
 
+    // 현재 유저가 좋아요 누른 post_id 목록을 한 번 더 조회
+    const postIds = data.map((p) => p.post_id);
+    let likedSet = new Set<string>();
+    if (filter.user_id && postIds.length > 0) {
+      const { data: userLikes, error: likesError } = await supabase
+        .from('like')
+        .select('post_id')
+        .eq('user_id', filter.user_id)
+        .in('post_id', postIds);
+
+      if (!likesError && userLikes) {
+        likedSet = new Set(userLikes.map((l) => l.post_id));
+      }
+    }
+
     return data.map((post) => ({
       post_id: post.post_id,
       content: post.content,
@@ -127,6 +136,7 @@ export const SbPostRepository: PostRepository = {
       temperature_sensitivity: post.temperature_sensitivity,
       post_image: post.post_image,
       like_count: post.like_count,
+      has_liked: likedSet.has(post.post_id),
       user: {
         user_id: post.user.user_id,
         nickname: post.user.nickname,
@@ -161,7 +171,6 @@ export const SbPostRepository: PostRepository = {
 
   /** 게시물 상세 요청 */
   async getById(postId: string): Promise<PostView> {
-    console.log('postId sbpost:', postId); //undefined
     const { data, error } = await supabase
       .from('post_view')
       .select('*')

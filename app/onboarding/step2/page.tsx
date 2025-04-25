@@ -1,6 +1,6 @@
 'use client';
 
-import ChoiceButton from '@/app/components/ChoiceButton';
+import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -9,14 +9,14 @@ function OnboardingStep2() {
   const router = useRouter();
   const { setOnboardingInfo } = useOnboardingStore();
 
-  const [selectedClothes, setSelectedClothes] = useState<number|null>(null);
+  const [selectedClothes, setSelectedClothes] = useState<number | null>(null);
 
   const handlePrevious = () => {
     router.push('/onboarding/step1');
   };
 
   const handleNext = () => {
-    if(selectedClothes) setOnboardingInfo({ selectedClothes });
+    if (selectedClothes) setOnboardingInfo({ selectedClothes });
     router.push('/onboarding/step3');
   };
 
@@ -32,7 +32,7 @@ function OnboardingStep2() {
           '자켓, 트렌치코트, 얇은 니트',
           '패딩, 기모바지, 내복, 두꺼운 니트',
         ].map((label, index) => (
-          <ChoiceButton
+          <Button
             key={index}
             value={index}
             onClick={() => setSelectedClothes(index)}
@@ -43,23 +43,23 @@ function OnboardingStep2() {
             }`}
           >
             {label}
-          </ChoiceButton>
+          </Button>
         ))}
       </div>
       <div className="flex justify-between w-full max-w-xs mt-6 space-x-4">
-        <ChoiceButton
+        <Button
           className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
           onClick={handlePrevious}
         >
           이전
-        </ChoiceButton>
-        <ChoiceButton
+        </Button>
+        <Button
           className="flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={handleNext}
-          disabled={selectedClothes===null}
+          disabled={selectedClothes === null}
         >
           다음
-        </ChoiceButton>
+        </Button>
       </div>
     </div>
   );

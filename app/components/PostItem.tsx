@@ -1,9 +1,10 @@
 'use client';
-import { Heart } from 'lucide-react';
 import SensitivityBadge from './SensitivityBadge';
 import PostUserBox from './PostUserBox';
+import LikeButton from './LikeButton';
 
 export interface PostProps {
+  postId: string;
   content: string;
   date: string;
   nickname: string;
@@ -17,6 +18,7 @@ export interface PostProps {
 }
 
 export default function PostItem({
+  postId,
   content,
   date,
   nickname,
@@ -30,18 +32,20 @@ export default function PostItem({
 }: PostProps) {
   return (
     <div
-      className={`px-4 py-5 ${detail ? '' : 'cursor-pointer hover:bg-gray-50'}`}
+      className={`px-4 py-5 z-0 ${detail ? '' : 'cursor-pointer hover:bg-gray-50'}`}
     >
       {/* 프로필, 좋아요 영역 */}
-      <div className="flex justify-between mb-3">
+      <div
+        className="flex justify-between mb-3 z-10 hover:bg-gray-50 cursor-pointer"
+        onClick={() => console.log('Like area clicked')}
+      >
         <PostUserBox nickname={nickname} date={date} />
         {!my && (
-          <div className="flex items-center justify-center text-gray-500 gap-1">
-            <Heart
-              className={`w-4 h-4 ${liked ? 'fill-rose-400 text-rose-400' : ''}`}
-            />
-            <p className="text-sm font-semibold">{likeCount}</p>
-          </div>
+          <LikeButton
+            postId={postId}
+            initialLiked={liked ?? false}
+            initialLikeCount={likeCount}
+          />
         )}
       </div>
       <div className="flex items-center justify-between mb-4">
