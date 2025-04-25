@@ -30,14 +30,6 @@ export default function ProfilePage() {
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    return () => {
-      if (previewImage?.startsWith('blob:')) {
-        URL.revokeObjectURL(previewImage);
-      }
-    };
-  }, [previewImage]);
-
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -51,7 +43,6 @@ export default function ProfilePage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // 프로필 이미지 변경 임시 로직
       setNewImageFile(file);
       setPreviewImage(URL.createObjectURL(file));
     }
@@ -59,24 +50,28 @@ export default function ProfilePage() {
 
   const handleStartEdit = () => {
     setIsEditing(true);
-    setNickname(user.nickname); 
+    setNickname(user.nickname);
   };
 
   const handleSave = async () => {
     try {
       const user_id = user.user_id;
       let imageUrl = user.profile_image;
-  
+
       if (newImageFile) {
-        // TODO : 이미지 업로드 로직 필요
-        imageUrl = previewImage;
+        const formData = new FormData();
+        formData.append('file', newImageFile);
+        formData.append('fileName', `${user_id}_${newImageFile.name}`);
+
+        const res = await api.post<{url:string}>('/image', formData);
+
+        if (!res) throw new Error("Url을 받아올 수 없습니다.");
+        imageUrl = res.data.url;
       }
-  
-      // 변경 여부 판단
+
       const isNicknameChanged = nickname !== user.nickname;
       const isImageChanged = imageUrl !== user.profile_image;
-  
-      // 변경 사항 없을 경우 처리
+
       if (!isNicknameChanged && !isImageChanged) {
         alert('변경된 내용이 없습니다.');
         setIsEditing(false);
@@ -84,38 +79,30 @@ export default function ProfilePage() {
       }
 
       if (isNicknameChanged) {
-        const checkRes = await api.post<{available: boolean}>('/auth/check-nickname', { nickname });
+        const checkRes = await api.post<{ available: boolean }>(
+          '/auth/check-nickname',
+          { nickname }
+        );
         if (!checkRes.data.available) {
-          alert('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.');
+          alert('이미 사용 중인 닉네임입니다.');
           return;
         }
       }
-  
-      // 수정 데이터 구성
-      const payload: {
-        user_id: string;
-        nickname?: string;
-        profile_image?: string;
-      } = {
+
+      const payload = {
         user_id,
         ...(isNicknameChanged && { nickname }),
         ...(isImageChanged && { profile_image: imageUrl }),
       };
-  
-      const res = await api.patch<User>('/user/update', payload);
-      const updatedUser = res.data;
-      console.log(updatedUser)
-  
-      // 상태 업데이트
-      setUser(updatedUser);
+
+      const resUpdate = await api.patch<User>('/user/update', payload);
+      setUser(resUpdate.data);
       alert('프로필이 수정되었습니다.');
       setIsEditing(false);
     } catch (error) {
-      console.error(error);
-      alert('수정에 실패했습니다.');
+      alert('수정에 실패했습니다. 다시 시도해주세요.');
     }
   };
-  
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -137,7 +124,11 @@ export default function ProfilePage() {
             <Avatar className="w-12 h-12">
               <AvatarImage
                 key={previewImage}
-                src={(isEditing && previewImage) || user.profile_image || '/images/user2.png'}
+                src={
+                  (isEditing && previewImage) ||
+                  user.profile_image ||
+                  '/images/user2.png'
+                }
                 alt="유저 아바타"
               />
               <AvatarFallback>프로필</AvatarFallback>
