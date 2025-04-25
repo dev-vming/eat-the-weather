@@ -3,6 +3,6 @@ export interface Comment {
   post_id: string; // UUID
   user_id: string; // UUID
   content: string; // Text
-  nickname: string; // String
+  nickname?: string; // UI를 위한 데이터
   created_at: Date; // Date
 }

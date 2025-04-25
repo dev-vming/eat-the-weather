@@ -51,7 +51,15 @@ export const SbCommentRepository = (): CommentRepository => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as Comment[];
+
+      return (data as Comment[]).map((comment) => ({
+        comment_id: comment.comment_id,
+        post_id: comment.post_id,
+        user_id: comment.user_id,
+        nickname: comment.nickname ?? '',
+        content: comment.content,
+        created_at: comment.created_at,
+      }));
     },
 
     /**
