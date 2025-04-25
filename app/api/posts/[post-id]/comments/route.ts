@@ -19,7 +19,7 @@ export async function GET(
     }
 
     const repository = SbCommentRepository();
-    const comments = await GetCommentUsecase(repository, { post_id: post_id });
+    const comments = await GetCommentUsecase(repository, { post_id });
     
     return NextResponse.json(comments);
   } catch (error) {

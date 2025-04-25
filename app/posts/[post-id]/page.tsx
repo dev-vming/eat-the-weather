@@ -112,7 +112,15 @@ export default function PostDetailPage() {
 
       {/* 댓글 리스트 */}
       <div className="flex-1 overflow-y-auto pr-2 mb-2">
-        <CommentItems comments={comments} />
+        {post_id && (
+          <CommentItems
+           comments={comments} post_id={post_id}
+           onRefresh={async () => {
+            const res = await api.get<GetCommentViewDto[]>(`/posts/${post_id}/comments`);
+            setComments(res.data);
+          }}
+            />
+        )}
 
       </div>
 
