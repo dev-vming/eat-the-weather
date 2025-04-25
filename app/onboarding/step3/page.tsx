@@ -1,6 +1,7 @@
 'use client';
 
-import ChoiceButton from '@/app/components/ChoiceButton';
+
+import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -29,7 +30,7 @@ function OnboardingStep3() {
       </p>
       <div className="space-y-4 w-full max-w-xs">
         {feelingOptions.map((label, index) => (
-          <ChoiceButton
+          <Button
             key={index}
             value={index}
             onClick={() => setSelectedFeeling(index)}
@@ -40,23 +41,23 @@ function OnboardingStep3() {
             }`}
           >
             {label}
-          </ChoiceButton>
+          </Button>
         ))}
       </div>
       <div className="flex justify-between w-full max-w-xs mt-6 space-x-4">
-        <ChoiceButton
+        <Button
           className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
           onClick={handlePrevious}
         >
           이전
-        </ChoiceButton>
-        <ChoiceButton
+        </Button>
+        <Button
           className="flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={handleNext}
-          disabled={selectedFeeling===null}
+          disabled={selectedFeeling === null}
         >
           다음
-        </ChoiceButton>
+        </Button>
       </div>
     </div>
   );
