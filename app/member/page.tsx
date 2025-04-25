@@ -59,15 +59,19 @@ export default function ProfilePage() {
       let imageUrl = user.profile_image;
 
       if (newImageFile) {
+        const ext = newImageFile.name.split('.').pop(); 
+        const safeFileName = `${user_id}_${Date.now()}.${ext}`;
+      
         const formData = new FormData();
         formData.append('file', newImageFile);
-        formData.append('fileName', `${user_id}_${newImageFile.name}`);
-
-        const res = await api.post<{url:string}>('/image', formData);
-
-        if (!res) throw new Error("Url을 받아올 수 없습니다.");
+        formData.append('fileName', safeFileName);
+      
+        const res = await api.post<{ url: string }>('/image', formData);
+      
+        if (!res.data?.url) throw new Error('URL을 받아올 수 없습니다.');
         imageUrl = res.data.url;
       }
+      
 
       const isNicknameChanged = nickname !== user.nickname;
       const isImageChanged = imageUrl !== user.profile_image;
