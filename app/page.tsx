@@ -6,10 +6,8 @@ import * as React from 'react';
 import { ComboboxDemo } from './components/ComBoBox';
 import { LocateFixed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 import { useUserStore } from '@/store/userStore';
 import { useCurrentWeather } from '@/lib/hooks/useWeather';
-
 import { useAutoLocation } from '@/lib/hooks/useAutoLocation';
 
 export default function HomePage() {

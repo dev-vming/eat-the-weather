@@ -15,7 +15,7 @@ export async function PATCH(req: NextRequest) {
 
     const updatedUser = await updateUserInfoUsecase(SbUserRepository(), user_id, dto);
 
-    return NextResponse.json({ user: updatedUser }, { status: 200 });
+    return NextResponse.json(updatedUser, { status: 200 });
   } catch (err) {
     return NextResponse.json(
       { message: '유저 정보 수정 중 오류 발생', error: (err as Error).message },

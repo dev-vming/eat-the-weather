@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from './components/NavBar';
 import QueryProviders from '@/providers/QueryProvider';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-export const metadata: Metadata = {
+
+export const metadata = {
   title: 'Eat The Weather',
-  description: '날씨를 잇다, 잇더웨더',
+  description: '날씨 기반 커뮤니티 서비스',
 };
 
 export default function RootLayout({
