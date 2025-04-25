@@ -5,6 +5,7 @@ import { useUserStore } from '@/store/userStore';
 import { User } from '@/domain/entities/User'; 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import LoadingBar from '@/app/components/LoadingBar';
 
 interface KakaoLoginRes {
   user: User;
@@ -66,5 +67,10 @@ export default function KakaoCallbackPage() {
     handleKakao();
   }, [code, from, router]);
 
-  return <p className="text-center mt-10">카카오 로그인 중입니다...</p>;
+  return (
+    <div className="flex flex-col justify-center items-center"
+    style={{ height: 'calc(100vh - 64px)' }}>
+      <LoadingBar />
+    </div>
+  );
 }
