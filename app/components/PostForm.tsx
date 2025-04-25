@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import PostUserBox from '@/app/components/PostUserBox';
+import { BackButton } from './BackButton';
 
 interface PostFormProps {
   initialContent?: string;
@@ -49,9 +50,12 @@ export default function PostForm({
 
   return (
     <div className="h-screen flex flex-col bg-white px-4 pt-6">
-      <h1 className="text-lg font-bold mb-6">
-        {isEdit ? '게시물 수정' : '게시물 작성'}
-      </h1>
+      <div className='flex items-center gap-4 mb-6'>
+        <BackButton />
+        <h1 className="text-lg font-bold">
+          {isEdit ? '게시물 수정' : '게시물 작성'}
+        </h1>
+      </div>
       <div className="mt-15">
         <PostUserBox nickname="글 작성자" />
         <div className="w-full max-w-xl flex flex-col gap-4 mt-4">

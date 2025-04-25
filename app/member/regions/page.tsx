@@ -9,18 +9,25 @@ import { Region } from '@/domain/entities/Region';
 import { useUserStore } from '@/store/userStore';
 import { api } from '@/lib/axios';
 import { useRouter } from 'next/navigation';
+import { BackButton } from '@/app/components/BackButton';
 
 export default function MemberRegionsPage() {
   const router = useRouter();
   const [regions, setRegions] = useState<UserRegionFavoriteViewDto[]>([]);
-  const [originalRegions, setOriginalRegions] = useState<UserRegionFavoriteViewDto[]>([]);
+  const [originalRegions, setOriginalRegions] = useState<
+    UserRegionFavoriteViewDto[]
+  >([]);
   const [isAddingRegion, setIsAddingRegion] = useState(false);
   const [newRegion, setNewRegion] = useState<Region | undefined>(undefined);
   const uuid = useUserStore.getState().user.user_id;
 
-  const fetchRegions = async (userId: string): Promise<UserRegionFavoriteViewDto[]> => {
+  const fetchRegions = async (
+    userId: string
+  ): Promise<UserRegionFavoriteViewDto[]> => {
     try {
-      const response = await api.get<UserRegionFavoriteViewDto[]>(`/region-favorite/${userId}`);
+      const response = await api.get<UserRegionFavoriteViewDto[]>(
+        `/region-favorite/${userId}`
+      );
       return response.data;
     } catch (error) {
       console.error('지역 정보를 불러오는 데 실패했습니다:', error);
@@ -65,7 +72,10 @@ export default function MemberRegionsPage() {
     try {
       await api.patch('/region-favorite', {
         user_id: uuid,
-        regions: regions.map(({ region_id, is_primary }) => ({ region_id, is_primary })),
+        regions: regions.map(({ region_id, is_primary }) => ({
+          region_id,
+          is_primary,
+        })),
       });
       alert('저장되었습니다!');
       router.push('/member');
@@ -109,18 +119,26 @@ export default function MemberRegionsPage() {
   const isChanged = () => {
     if (regions.length !== originalRegions.length) return true;
 
-    const sortedNew = [...regions].sort((a, b) => a.region_id.localeCompare(b.region_id));
-    const sortedOriginal = [...originalRegions].sort((a, b) => a.region_id.localeCompare(b.region_id));
+    const sortedNew = [...regions].sort((a, b) =>
+      a.region_id.localeCompare(b.region_id)
+    );
+    const sortedOriginal = [...originalRegions].sort((a, b) =>
+      a.region_id.localeCompare(b.region_id)
+    );
 
-    return sortedNew.some((r, i) =>
-      r.region_id !== sortedOriginal[i].region_id ||
-      r.is_primary !== sortedOriginal[i].is_primary
+    return sortedNew.some(
+      (r, i) =>
+        r.region_id !== sortedOriginal[i].region_id ||
+        r.is_primary !== sortedOriginal[i].is_primary
     );
   };
 
   return (
     <div className="min-h-screen px-4 py-6 bg-white flex flex-col relative">
-      <h1 className="text-lg font-bold mb-6">지역 즐겨찾기</h1>
+      <div className='flex items-center gap-4'>
+        <BackButton />
+        <h1 className="text-lg font-bold">지역 즐겨찾기</h1>
+      </div>
       <div className="mt-40">
         <p className="font-semibold text-gray-700 py-4 px-2 border-b">지역명</p>
         <div className="w-full flex flex-col justify-around mt-4 gap-2">
@@ -197,7 +215,11 @@ export default function MemberRegionsPage() {
         </div>
       </div>
 
-      <Button className="w-full mt-4 cursor-pointer" onClick={handleSave} disabled={!isChanged()}>
+      <Button
+        className="w-full mt-4 cursor-pointer"
+        onClick={handleSave}
+        disabled={!isChanged()}
+      >
         저장하기
       </Button>
     </div>
