@@ -7,6 +7,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import PostUserBox from '@/app/components/PostUserBox';
 import { BackButton } from './BackButton';
 import { useUserStore } from '@/store/userStore';
+import { X } from 'lucide-react';
+import { api } from '@/lib/axios';
 
 interface PostFormProps {
   initialContent?: string;
@@ -32,11 +34,11 @@ export default function PostForm({
   const [imagePreview, setImagePreview] = useState<string | null>(initialImageUrl);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  const { user } = useUserStore();
+
   const isTagChecked = clothingChecked || weatherChecked;
   const isContentValid = content.trim().length > 0;
   const isFormValid = isTagChecked && isContentValid;
-
-  const { user } = useUserStore();
 
   const getPlaceholder = () => {
     if (isEdit) return '';
@@ -54,24 +56,30 @@ export default function PostForm({
     setImagePreview(URL.createObjectURL(file));
   };
 
+  const uploadImage = async (file: File) => {
+    const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg';
+    const safeFileName = `${user.user_id}_${Date.now()}.${ext}`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileName', safeFileName);
+
+    const res = await api.post<{ url: string }>('/image', formData);
+    if (!res.data?.url) {
+      throw new Error('이미지 URL을 받아올 수 없습니다.');
+    }
+    return res.data.url;
+  };
+
   const handleSubmit = async () => {
-    let uploadedImageUrl: string | null = imagePreview ?? null;
+    let uploadedImageUrl: string | null = initialImageUrl ?? null;
 
     if (!isEdit && imageFile) {
       try {
-        const formData = new FormData();
-        formData.append('file', imageFile);
-        formData.append('fileName', imageFile.name);
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await res.json();
-        uploadedImageUrl = data.url;
+        uploadedImageUrl = await uploadImage(imageFile);
       } catch (err) {
-        alert('이미지 업로드 실패');
+        alert('이미지 업로드 실패! 다시 시도해주세요!');
+        return;
       }
     }
 
@@ -85,6 +93,7 @@ export default function PostForm({
 
   return (
     <div className="h-screen flex flex-col bg-white px-4 pt-6">
+      {/* 상단 헤더 */}
       <div className="flex items-center gap-4 mb-6">
         <BackButton />
         <h1 className="text-lg font-bold">
@@ -92,6 +101,7 @@ export default function PostForm({
         </h1>
       </div>
 
+      {/* 유저 정보 박스 */}
       <PostUserBox nickname={user.nickname} profileImage={user.profile_image} />
 
       <div className="w-full max-w-xl flex flex-col gap-4 mt-4">
@@ -132,33 +142,51 @@ export default function PostForm({
         </div>
 
         {/* 이미지 업로드 or 미리보기 */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 relative">
           <span className="text-xs font-semibold text-gray-500">
             이미지 첨부
           </span>
 
           {!isEdit && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="text-sm"
-            />
-          )}
-
-          {imagePreview && (
-            <div className="w-full max-w-xs">
-              <img
-                src={imagePreview}
-                alt="미리보기"
-                className="rounded-md border shadow"
-              />
+            <div className="flex items-center gap-4 mt-2">
+              {!imagePreview ? (
+                // 파일 선택 버튼
+                <label className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg cursor-pointer text-sm font-medium hover:bg-gray-200">
+                  파일 선택
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              ) : (
+                // 썸네일 + 삭제버튼
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="미리보기"
+                    className="w-32 h-32 object-cover rounded-lg border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                    }}
+                    className="absolute top-[-8px] right-[-8px] bg-white border rounded-full p-1 shadow-sm cursor-pointer hover:bg-gray-100"
+                  >
+                    <X size={16} className="text-red-700" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
 
+        {/* 제출 버튼 */}
         <Button
-          className="w-full bg-blue-900 text-white"
+          className="w-full bg-blue-900 text-white cursor-pointer"
           disabled={!isFormValid}
           onClick={handleSubmit}
         >
