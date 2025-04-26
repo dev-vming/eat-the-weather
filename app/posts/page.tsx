@@ -7,7 +7,7 @@ import { useRef, useEffect } from 'react';
 import { PostView } from '@/domain/entities/PostView';
 import { api } from '@/lib/axios';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useUserStore } from '@/store/userStore';
 
@@ -69,6 +69,27 @@ export default function PostPage() {
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+  //TODO: 캐싱무효화 말고 좋아요 상태가 변했을 때만. 쿼리키를 초기화하도록
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    queryClient.resetQueries({
+      queryKey: [
+        'posts',
+        region_id,
+        user_id,
+        order_by,
+        has_outfit_tag,
+        has_weather_tag,
+      ],
+    });
+  }, [
+    queryClient,
+    region_id,
+    user_id,
+    order_by,
+    has_outfit_tag,
+    has_weather_tag,
+  ]);
 
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage) return;
