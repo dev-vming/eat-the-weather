@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/axios';
 import LikeHeart from './LikeHeart';
 import { useUserStore } from '@/store/userStore';
+import { useQueryTriggerStore } from '@/store/queryTriggerStore';
 
 interface LikeButtonProps {
   postId: string;
@@ -23,6 +24,8 @@ export default function LikeButton({
 
   const [liked, setLiked] = useState(initialLiked);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
+
+  const { toggleQueryTrigger } = useQueryTriggerStore();
 
   // mutate에 이전 liked 상태를 넘기도록 TVariables를 boolean으로 지정
   const { mutate: toggleLike, status } = useMutation<
@@ -56,7 +59,7 @@ export default function LikeButton({
       // UI: 이전값(prevLiked)의 반대 값으로 보여줌
       setLiked(!prevLiked);
       setLikeCount((c) => c + (prevLiked ? -1 : 1));
-
+      toggleQueryTrigger();
       return { previous };
     },
 
@@ -66,6 +69,7 @@ export default function LikeButton({
       }
       // 실패 시, UI 롤백
       setLiked(liked);
+      toggleQueryTrigger();
       setLikeCount((c) => c - (liked ? -1 : 1));
     },
 
