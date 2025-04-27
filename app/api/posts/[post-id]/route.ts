@@ -66,7 +66,6 @@ export async function DELETE(
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log('body:', body);
     const dto: UpdatePostRequestDto = { ...body };
 
     await UpdatePostUsecase(SbPostRepository, dto);

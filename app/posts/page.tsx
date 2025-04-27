@@ -124,6 +124,7 @@ export default function PostPage() {
             <div key={post.post_id}>
               <Link href={`/posts/${post.post_id}`} className="z-0">
                 <PostItem
+                  userId={post.user.user_id}
                   postId={post.post_id}
                   content={post.content}
                   date={new Date(post.created_at).toLocaleString('ko-KR', {

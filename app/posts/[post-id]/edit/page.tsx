@@ -8,7 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function PostEditPage() {
-  //기존 데이터 가져오기기
+  //기존 데이터 가져오기
   const params = useParams();
   const post_id = params['post-id'];
   const user_id = useUserStore((state) => state.user.user_id);
@@ -16,8 +16,6 @@ export default function PostEditPage() {
   const router = useRouter();
   const { user, selectedWeatherRegion } = useUserStore();
   const region_id = selectedWeatherRegion?.region_id;
-
-  console.log('postData:', postData);
 
   const handleUpdate = async (data: {
     content: string;

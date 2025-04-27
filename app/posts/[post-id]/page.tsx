@@ -87,6 +87,7 @@ export default function PostDetailPage() {
       {/* 게시물 영역 */}
       <div>
         <PostItem
+          userId={postData.user.user_id}
           postId={post_id as string}
           content={postData.content}
           date={new Date(postData.created_at).toLocaleString('ko-KR', {

@@ -7,8 +7,10 @@ import PostUserBox from './PostUserBox';
 import LikeButton from './LikeButton';
 import Image from 'next/image';
 import { api } from '@/lib/axios';
+import { useUserStore } from '@/store/userStore';
 
 export interface PostProps {
+  userId: string;
   postId: string;
   content: string;
   date: string;
@@ -24,6 +26,7 @@ export interface PostProps {
 }
 
 export default function PostItem({
+  userId,
   postId,
   content,
   date,
@@ -40,6 +43,7 @@ export default function PostItem({
   const pathname = usePathname();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { user } = useUserStore();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,7 +62,8 @@ export default function PostItem({
     <div
       className={`px-4 py-5 z-0 ${detail ? '' : 'cursor-pointer hover:bg-gray-100'}`}
     >
-      {pathname !== '/posts' && (
+      {/* 삭제하기/ 수정하기 영역 */}
+      {pathname !== '/posts' && userId === user.user_id && (
         <div className="flex gap-2">
           <div
             className={`text-gray-500 underline cursor-pointer mb-3 text-sm inline-block w-auto hover:text-gray-700 ${
@@ -78,7 +83,6 @@ export default function PostItem({
             }`}
             onClick={(e) => {
               e.stopPropagation();
-              console.log('수정하기 클릭됨');
               router.push(`/posts/${postId}/edit`);
             }}
           >
@@ -87,15 +91,14 @@ export default function PostItem({
         </div>
       )}
 
-      <div
-        className="flex justify-between mb-3 z-10 hover:bg-gray-100 cursor-pointer"
-        onClick={() => console.log('Like area clicked')}
-      >
+      <div className="flex justify-between mb-3 z-10 hover:bg-gray-100 cursor-pointer">
         <PostUserBox
           nickname={nickname}
           date={date}
           profileImage={profileImage}
         />
+
+        {/* 좋아요 하트 영역역 */}
         {!my && (
           <LikeButton
             postId={postId}
