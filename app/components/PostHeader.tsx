@@ -12,6 +12,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { BackButton } from './BackButton';
 
 export default function PostHeader() {
   const router = useRouter();
@@ -57,7 +58,10 @@ export default function PostHeader() {
 
   return (
     <div className="sticky top-0 z-10 bg-white px-4 pt-6">
-      <h1 className="text-lg font-bold mb-6">게시판</h1>
+      <div className='flex items-center gap-4 mb-6'>
+        <BackButton />
+        <h1 className="text-lg font-bold">게시판</h1>
+      </div>
 
       <div className="flex justify-between mb-6">
         <div className="flex items-center">

@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GetPostByIdUsecase } from '@/application/usecases/post/GetPostByIdUsecase ';
 import { GetPostByIdRequestDto } from '@/application/usecases/post/dto/GetPostByIdDto';
 import { SbPostRepository } from '@/infra/repositories/supabase/SbPostRepository';
+import { DeletePostUsecase } from '@/application/usecases/post/DeletePostUsecase';
+
 
 /**
  * 게시글 상세 조회 API
@@ -33,3 +35,31 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { 'post-id': string } }
+) {
+  try {
+    const { 'post-id': post_id } = await params;
+
+    const success = await DeletePostUsecase(SbPostRepository, post_id);
+
+    if (!success) {
+      return NextResponse.json(
+        { message: '게시글 삭제 실패' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ message: '게시글 삭제 성공' }, { status: 200 });
+  } catch (error: any) {
+    console.error('게시글 삭제 실패:', error);
+    return NextResponse.json(
+      { message: error.message ?? '게시글 삭제 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
+
+

@@ -2,6 +2,7 @@
 import SensitivityBadge from './SensitivityBadge';
 import PostUserBox from './PostUserBox';
 import LikeButton from './LikeButton';
+import Image from 'next/image';
 
 export interface PostProps {
   postId: string;
@@ -15,6 +16,7 @@ export interface PostProps {
   sensitivity: number;
   detail?: boolean;
   my?: boolean;
+  profileImage?: string;
 }
 
 export default function PostItem({
@@ -29,6 +31,7 @@ export default function PostItem({
   sensitivity,
   detail,
   my,
+  profileImage,
 }: PostProps) {
   return (
     <div
@@ -39,7 +42,11 @@ export default function PostItem({
         className="flex justify-between mb-3 z-10 hover:bg-gray-50 cursor-pointer"
         onClick={() => console.log('Like area clicked')}
       >
-        <PostUserBox nickname={nickname} date={date} />
+        <PostUserBox
+          nickname={nickname}
+          date={date}
+          profileImage={profileImage}
+        />
         {!my && (
           <LikeButton
             postId={postId}
@@ -57,8 +64,23 @@ export default function PostItem({
           ))}
         </div>
       </div>
-      <div className="mb-5 text-sm text-gray-800 line-clamp-2 mb-1-clamp-2">
-        {content}
+      <div className="flex flex-row justify-between">
+        {/* 이미지 / 콘텐츠 영역 */}
+        <div
+          className="mb-5 text-sm text-gray-800 line-clamp-2 mb-1-clamp-2"
+        >
+          {content}
+        </div>
+        {image && (
+          <div className='w-16 h-16 flex-shrink-0 rounded-md overflow-hidden'>
+            <Image
+              src={image}
+              alt="게시물 이미지"
+              style={{ objectFit: 'cover' }}
+              sizes="64px"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

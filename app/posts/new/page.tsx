@@ -14,24 +14,23 @@ export default function PostNewPage() {
     content: string;
     has_outfit_tag: boolean;
     has_weather_tag: boolean;
+    post_image?: string | null;
   }) => {
     try {
       const postData = {
         user_id: user.user_id,
         region_id,
         content: data.content,
-        post_image: null, // TODO: 이미지 업로드 연동 시 수정
+        post_image: data.post_image ?? null, 
         temperature_sensitivity: user.temperature_sensitivity,
         has_outfit_tag: data.has_outfit_tag,
         has_weather_tag: data.has_weather_tag,
       };
-
-      const res = await api.post('/posts', postData);
-
+  
+      await api.post('/posts', postData);
       router.push('/posts');
-    } catch (error: any) {
-      console.error('게시글 작성 중 오류:', error);
-      alert('게시글 작성에 실패했습니다.');
+    } catch (error) {
+      alert('게시글 작성 실패');
     }
   };
 
