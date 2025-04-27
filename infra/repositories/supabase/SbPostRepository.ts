@@ -169,7 +169,6 @@ export const SbPostRepository: PostRepository = {
     if (error) throw new Error('게시글 삭제 실패');
   },
 
-  /** 게시물 상세 요청 (with has_liked) */
   async getById(postId: string, userId: string): Promise<PostView> {
     // 1) view에서 post 불러오기
     const { data, error } = await supabase
@@ -228,19 +227,6 @@ export const SbPostRepository: PostRepository = {
     return data as Post[];
   },
 
-  async getPopular(regionId?: string, limit: number = 10): Promise<Post[]> {
-    let query = supabase
-      .from('post_view')
-      .select('*')
-      .order('like_count', { ascending: false })
-      .limit(limit);
-    if (regionId) query = query.eq('region_id', regionId);
-
-    const { data, error } = await query;
-    if (error || !data) throw new Error('인기 게시글 조회 실패');
-    return data as Post[];
-  },
-
   async getLikedPostsByUser(user_id) {
     // likes 테이블에서 user_id에 매칭되는 post를 join
     const { data, error } = await supabase
@@ -253,8 +239,8 @@ export const SbPostRepository: PostRepository = {
           has_outfit_tag, has_weather_tag,
           temperature_sensitivity,
           user:user_id ( user_id, nickname, profile_image )
-        )
-      `
+          )
+          `
       )
       .eq('user_id', user_id);
 
@@ -281,5 +267,38 @@ export const SbPostRepository: PostRepository = {
         has_liked: true,
       } as PostView;
     });
+  },
+
+  async getPostsByUser(user_id: string): Promise<PostView[]> {
+    const { data, error } = await supabase
+      .from('post_view')
+      .select('*')
+      // user JSON 안의 user_id를 꺼내서 비교
+      .eq('user->>user_id', user_id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase getPostsByUser error:', error);
+      throw new Error('내가 쓴 게시물 조회 실패');
+    }
+    if (!data) return [];
+
+    return data.map((row: any) => ({
+      post_id: row.post_id,
+      content: row.content,
+      post_image: row.post_image,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      like_count: row.like_count,
+      has_outfit_tag: row.has_outfit_tag,
+      has_weather_tag: row.has_weather_tag,
+      temperature_sensitivity: row.temperature_sensitivity,
+      user: {
+        user_id: row.user.user_id,
+        nickname: row.user.nickname,
+        profile_image: row.user.profile_image,
+      },
+      has_liked: false,
+    }));
   },
 };

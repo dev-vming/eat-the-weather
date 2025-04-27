@@ -13,6 +13,8 @@ export interface PostRepository {
   getAll(filter: PostFilter): Promise<PostView[]>;
 
   getLikedPostsByUser(user_id: string): Promise<PostView[]>;
+  /** 특정 사용자가 작성한 게시물 목록 조회 */
+  getPostsByUser(user_id: string): Promise<PostView[]>;
+
   getByUserId(userId: string): Promise<Post[]>;
-  getPopular(regionId?: string, limit?: number): Promise<Post[]>;
 }
