@@ -59,15 +59,31 @@ export default function PostItem({
       className={`px-4 py-5 z-0 ${detail ? '' : 'cursor-pointer hover:bg-gray-100'}`}
     >
       {pathname !== '/posts' && (
-        <div
-          className={`text-gray-500 underline cursor-pointer mb-3 text-sm inline-block w-auto hover:text-gray-700 ${
-            isDeleting
-              ? 'cursor-not-allowed text-gray-300 hover:text-gray-300'
-              : ''
-          }`}
-          onClick={handleDelete}
-        >
-          {isDeleting ? '삭제중...' : '삭제하기'}
+        <div className="flex gap-2">
+          <div
+            className={`text-gray-500 underline cursor-pointer mb-3 text-sm inline-block w-auto hover:text-gray-700 ${
+              isDeleting
+                ? 'cursor-not-allowed text-gray-300 hover:text-gray-300'
+                : ''
+            }`}
+            onClick={handleDelete}
+          >
+            {isDeleting ? '삭제중...' : '삭제하기'}
+          </div>
+          <div
+            className={`text-gray-500 underline cursor-pointer mb-3 text-sm inline-block w-auto hover:text-gray-700 ${
+              isDeleting
+                ? 'cursor-not-allowed text-gray-300 hover:text-gray-300'
+                : ''
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log('수정하기 클릭됨');
+              router.push(`/posts/${postId}/edit`);
+            }}
+          >
+            수정하기
+          </div>
         </div>
       )}
 
@@ -99,6 +115,7 @@ export default function PostItem({
       </div>
 
       <div className="flex flex-row justify-between">
+        {/* 이미지 / 콘텐츠 영역 */}
         <div className="mb-5 text-sm text-gray-800 line-clamp-2 mb-1-clamp-2">
           {content}
         </div>

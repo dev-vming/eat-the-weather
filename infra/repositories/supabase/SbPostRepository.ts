@@ -145,20 +145,20 @@ export const SbPostRepository: PostRepository = {
     }));
   },
 
-  async update(post: Post): Promise<void> {
-    const { error } = await supabase
+  async update(postData): Promise<void> {
+    const { data, error } = await supabase
       .from('post')
       .update({
-        content: post.content,
-        post_image: post.post_image,
-        temperature_sensitivity: post.temperature_sensitivity,
-        has_outfit_tag: post.has_outfit_tag,
-        has_weather_tag: post.has_weather_tag,
+        content: postData.content,
+        post_image: postData.post_image ?? null,
+        has_outfit_tag: postData.has_outfit_tag ?? false,
+        has_weather_tag: postData.has_weather_tag ?? false,
         updated_at: new Date().toISOString(),
       })
-      .eq('post_id', post.post_id);
+      .eq('post_id', postData.post_id)
+      .select('*');
 
-    if (error) throw new Error('게시글 수정 실패');
+    if (error || !data) throw new Error('게시글 수정 실패');
   },
 
   async delete(postId: string): Promise<void> {

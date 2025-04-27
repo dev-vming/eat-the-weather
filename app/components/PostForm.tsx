@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,6 +14,8 @@ interface PostFormProps {
   initialContent?: string;
   isEdit?: boolean;
   initialImageUrl?: string | null;
+  initialHasOutfitTag?: boolean;
+  initialHasWeatherTag?: boolean;
   onSubmit: (data: {
     content: string;
     has_outfit_tag: boolean;
@@ -26,15 +28,33 @@ export default function PostForm({
   initialContent = '',
   isEdit = false,
   initialImageUrl = null,
+  initialHasOutfitTag = false,
+  initialHasWeatherTag = false,
   onSubmit,
 }: PostFormProps) {
+  const { user } = useUserStore();
+
   const [content, setContent] = useState(initialContent);
-  const [clothingChecked, setClothingChecked] = useState(false);
-  const [weatherChecked, setWeatherChecked] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(initialImageUrl);
+  const [clothingChecked, setClothingChecked] = useState(initialHasOutfitTag);
+  const [weatherChecked, setWeatherChecked] = useState(initialHasWeatherTag);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialImageUrl
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const { user } = useUserStore();
+  // Sync props → state on mount or prop change
+  useEffect(() => {
+    setContent(initialContent);
+    setClothingChecked(initialHasOutfitTag);
+    setWeatherChecked(initialHasWeatherTag);
+    setImagePreview(initialImageUrl);
+    setImageFile(null);
+  }, [
+    initialContent,
+    initialHasOutfitTag,
+    initialHasWeatherTag,
+    initialImageUrl,
+  ]);
 
   const isTagChecked = clothingChecked || weatherChecked;
   const isContentValid = content.trim().length > 0;
@@ -56,8 +76,14 @@ export default function PostForm({
     setImagePreview(URL.createObjectURL(file));
   };
 
+  // Remove preview only; submit happens on final 버튼 클릭
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   const uploadImage = async (file: File) => {
-    const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg';
+    const ext = file.name.includes('.') ? file.name.split('.').pop()! : 'jpg';
     const safeFileName = `${user.user_id}_${Date.now()}.${ext}`;
 
     const formData = new FormData();
@@ -72,12 +98,13 @@ export default function PostForm({
   };
 
   const handleSubmit = async () => {
-    let uploadedImageUrl: string | null = initialImageUrl ?? null;
+    let finalImageUrl: string | null = imagePreview;
 
-    if (!isEdit && imageFile) {
+    // 새로 추가된 파일이 있으면 업로드
+    if (imageFile) {
       try {
-        uploadedImageUrl = await uploadImage(imageFile);
-      } catch (err) {
+        finalImageUrl = await uploadImage(imageFile);
+      } catch {
         alert('이미지 업로드 실패! 다시 시도해주세요!');
         return;
       }
@@ -87,13 +114,13 @@ export default function PostForm({
       content,
       has_outfit_tag: clothingChecked,
       has_weather_tag: weatherChecked,
-      post_image: uploadedImageUrl,
+      post_image: finalImageUrl,
     });
   };
 
   return (
     <div className="h-screen flex flex-col bg-white px-4 pt-6">
-      {/* 상단 헤더 */}
+      {/* 헤더 */}
       <div className="flex items-center gap-4 mb-6">
         <BackButton />
         <h1 className="text-lg font-bold">
@@ -101,11 +128,11 @@ export default function PostForm({
         </h1>
       </div>
 
-      {/* 유저 정보 박스 */}
+      {/* 유저 박스 */}
       <PostUserBox nickname={user.nickname} profileImage={user.profile_image} />
 
       <div className="w-full max-w-xl flex flex-col gap-4 mt-4">
-        {/* 태그 선택 */}
+        {/* 태그 */}
         <div>
           <span className="text-xs font-semibold text-gray-500">
             무엇에 대한 게시물인가요?
@@ -114,21 +141,21 @@ export default function PostForm({
             <label className="flex items-center gap-2">
               <Checkbox
                 checked={clothingChecked}
-                onCheckedChange={() => setClothingChecked(!clothingChecked)}
+                onCheckedChange={(v) => setClothingChecked(!!v)}
               />
               <span className="text-sm">옷차림</span>
             </label>
             <label className="flex items-center gap-2">
               <Checkbox
                 checked={weatherChecked}
-                onCheckedChange={() => setWeatherChecked(!weatherChecked)}
+                onCheckedChange={(v) => setWeatherChecked(!!v)}
               />
               <span className="text-sm">날씨</span>
             </label>
           </div>
         </div>
 
-        {/* 내용 입력 */}
+        {/* 콘텐츠 */}
         <div>
           <span className="text-xs font-semibold text-gray-500">
             공유할 내용을 입력해주세요.
@@ -141,52 +168,44 @@ export default function PostForm({
           />
         </div>
 
-        {/* 이미지 업로드 or 미리보기 */}
+        {/* 이미지 업로드 / 미리보기 */}
         <div className="flex flex-col gap-2 relative">
           <span className="text-xs font-semibold text-gray-500">
             이미지 첨부
           </span>
-
-          {!isEdit && (
-            <div className="flex items-center gap-4 mt-2">
-              {!imagePreview ? (
-                // 파일 선택 버튼
-                <label className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg cursor-pointer text-sm font-medium hover:bg-gray-200">
-                  파일 선택
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
-              ) : (
-                // 썸네일 + 삭제버튼
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="미리보기"
-                    className="w-32 h-32 object-cover rounded-lg border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                    className="absolute top-[-8px] right-[-8px] bg-white border rounded-full p-1 shadow-sm cursor-pointer hover:bg-gray-100"
-                  >
-                    <X size={16} className="text-red-700" />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-4 mt-2">
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="미리보기"
+                  className="w-32 h-32 object-cover rounded-lg border"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-[-8px] right-[-8px] bg-white border rounded-full p-1 shadow-sm cursor-pointer hover:bg-gray-100"
+                >
+                  <X size={16} className="text-red-700" />
+                </button>
+              </div>
+            ) : (
+              <label className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg cursor-pointer text-sm font-medium hover:bg-gray-200">
+                파일 선택
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
         </div>
 
-        {/* 제출 버튼 */}
+        {/* 제출 */}
         <Button
-          className="w-full bg-blue-900 text-white cursor-pointer"
+          className="w-full bg-blue-900 text-white"
           disabled={!isFormValid}
           onClick={handleSubmit}
         >
