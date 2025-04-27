@@ -240,4 +240,46 @@ export const SbPostRepository: PostRepository = {
     if (error || !data) throw new Error('인기 게시글 조회 실패');
     return data as Post[];
   },
+
+  async getLikedPostsByUser(user_id) {
+    // likes 테이블에서 user_id에 매칭되는 post를 join
+    const { data, error } = await supabase
+      .from('like')
+      .select(
+        `
+        post (
+          post_id, content, post_image, created_at, updated_at,
+          like_count,
+          has_outfit_tag, has_weather_tag,
+          temperature_sensitivity,
+          user:user_id ( user_id, nickname, profile_image )
+        )
+      `
+      )
+      .eq('user_id', user_id);
+
+    if (error) throw new Error('좋아요 게시물 조회 실패');
+
+    return data.map((row: any) => {
+      const p = row.post;
+      return {
+        post_id: p.post_id,
+        content: p.content,
+        post_image: p.post_image,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
+        like_count: p.like_count,
+        has_outfit_tag: p.has_outfit_tag,
+        has_weather_tag: p.has_weather_tag,
+        temperature_sensitivity: p.temperature_sensitivity,
+        user: {
+          user_id: p.user.user_id,
+          nickname: p.user.nickname,
+          profile_image: p.user.profile_image,
+        },
+        // 이미 이 usecase는 “내가 좋아요 누른 것이니” has_liked=true 로 고정
+        has_liked: true,
+      } as PostView;
+    });
+  },
 };

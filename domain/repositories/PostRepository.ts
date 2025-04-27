@@ -12,6 +12,7 @@ export interface PostRepository {
   getById(postId: string, userId: string): Promise<PostView>;
   getAll(filter: PostFilter): Promise<PostView[]>;
 
+  getLikedPostsByUser(user_id: string): Promise<PostView[]>;
   getByUserId(userId: string): Promise<Post[]>;
   getPopular(regionId?: string, limit?: number): Promise<Post[]>;
 }
