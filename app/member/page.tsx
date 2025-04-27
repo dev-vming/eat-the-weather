@@ -11,6 +11,7 @@ import { SquarePen, Camera } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { api } from '@/lib/axios';
 import { User } from '@/domain/entities/User';
+import { BackButton } from '../components/BackButton';
 
 const linkItems = [
   { href: '/member/posts', label: '작성한 게시물' },
@@ -59,13 +60,16 @@ export default function ProfilePage() {
       let imageUrl = user.profile_image;
 
       if (newImageFile) {
+        const ext = newImageFile.name.split('.').pop();
+        const safeFileName = `${user_id}_${Date.now()}.${ext}`;
+
         const formData = new FormData();
         formData.append('file', newImageFile);
-        formData.append('fileName', `${user_id}_${newImageFile.name}`);
+        formData.append('fileName', safeFileName);
 
-        const res = await api.post<{url:string}>('/image', formData);
+        const res = await api.post<{ url: string }>('/image', formData);
 
-        if (!res) throw new Error("Url을 받아올 수 없습니다.");
+        if (!res.data?.url) throw new Error('URL을 받아올 수 없습니다.');
         imageUrl = res.data.url;
       }
 
@@ -113,7 +117,10 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen px-4 py-6 bg-white flex flex-col">
-      <h1 className="text-lg font-bold mb-6">마이페이지</h1>
+      <div className='flex items-center gap-4'>
+        <BackButton />
+        <h1 className="text-lg font-bold">마이페이지</h1>
+      </div>
 
       <div className="flex items-center mb-8 mt-40 justify-between">
         <div className="flex items-center gap-4">

@@ -1,5 +1,6 @@
 'use client';
 
+import { BackButton } from '@/app/components/BackButton';
 import PostItem from '@/app/components/PostItem';
 import Link from 'next/link';
 
@@ -87,7 +88,8 @@ export default function MemberLikesPage() {
 
   return (
     <div className="h-screen flex flex-col bg-white">
-      <div className="px-4 py-6">
+      <div className="flex items-center gap-4 px-4 py-6">
+        <BackButton />
         <h1 className="text-lg font-bold">내가 좋아요한 글</h1>
       </div>
       <div className="flex-grow overflow-y-auto px-4 pb-20">

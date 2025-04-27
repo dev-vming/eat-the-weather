@@ -11,6 +11,7 @@ import { api } from '@/lib/axios';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useUserStore } from '@/store/userStore';
+import { BackButton } from '@/app/components/BackButton';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -78,8 +79,10 @@ export default function PostDetailPage() {
 
   return (
     <div className="h-screen flex flex-col bg-white px-4 pt-6">
-      {/* 상단 제목 */}
-      <h1 className="text-lg font-bold mb-6">채팅</h1>
+      <div className="flex items-center gap-4 mb-6">
+        <BackButton />
+        <h1 className="text-lg font-bold">게시물 상세</h1>
+      </div>
 
       {/* 게시물 영역 */}
       <div className="pt-2">
@@ -94,6 +97,7 @@ export default function PostDetailPage() {
             minute: '2-digit',
             hour12: true,
           })}
+          profileImage={postData.user.profile_image}
           nickname={postData.user.nickname}
           tags={[
             ...(postData.has_weather_tag ? ['날씨'] : []),
@@ -118,17 +122,18 @@ export default function PostDetailPage() {
 
       {/* 댓글 리스트 */}
       <div className="flex-1 overflow-y-auto pr-2 mb-2">
-
         {post_id && (
           <CommentItems
-           comments={comments} post_id={post_id}
-           onRefresh={async () => {
-            const res = await api.get<GetCommentViewDto[]>(`/posts/${post_id}/comments`);
-            setComments(res.data);
-          }}
-            />
+            comments={comments}
+            post_id={post_id}
+            onRefresh={async () => {
+              const res = await api.get<GetCommentViewDto[]>(
+                `/posts/${post_id}/comments`
+              );
+              setComments(res.data);
+            }}
+          />
         )}
-
       </div>
 
       {/* 댓글 입력창 */}
