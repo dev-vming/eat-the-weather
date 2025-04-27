@@ -10,7 +10,7 @@ import { api } from '@/lib/axios';
 import { useUserStore } from '@/store/userStore';
 
 export interface PostProps {
-  userId: string;
+  userId?: string;
   postId: string;
   content: string;
   date: string;

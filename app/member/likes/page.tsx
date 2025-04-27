@@ -41,7 +41,6 @@ export default function MemberLikesPage() {
           <div key={`${post.post_id}_${index}`}>
             <Link href={`/posts/${post.post_id}`}>
               <PostItem
-                userId={user.user_id}
                 postId={post.post_id}
                 content={post.content}
                 date={new Date(post.created_at).toLocaleString('ko-KR', {
