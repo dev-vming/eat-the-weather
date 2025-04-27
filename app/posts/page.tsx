@@ -7,14 +7,18 @@ import { useRef, useEffect } from 'react';
 import { PostView } from '@/domain/entities/PostView';
 import { api } from '@/lib/axios';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useUserStore } from '@/store/userStore';
+import { useQueryTriggerStore } from '@/store/queryTriggerStore';
 
 export default function PostPage() {
+  const isAuthenticated = useUserStore((state) => state.user.isAuthenticated);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, selectedWeatherRegion } = useUserStore();
+  const { queryTrigger, setQueryTriggerFalse } = useQueryTriggerStore();
+  const queryClient = useQueryClient();
 
   // region_id: 선택된 지역이 없으면 서울시 중구로 대체(임시)
   const region_id =
@@ -71,6 +75,23 @@ export default function PostPage() {
   });
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/auth/login');
+      return;
+    }
+    if (queryTrigger) {
+      queryClient.resetQueries({
+        queryKey: [
+          'posts',
+          region_id,
+          user_id,
+          order_by,
+          has_outfit_tag,
+          has_weather_tag,
+        ],
+      });
+      setQueryTriggerFalse();
+    }
     if (!loadMoreRef.current || !hasNextPage) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
@@ -83,7 +104,7 @@ export default function PostPage() {
   }, [fetchNextPage, hasNextPage]);
 
   const posts: PostView[] = data?.pages.flatMap((page) => page.posts) ?? [];
-
+  if (!isAuthenticated) return null;
   return (
     <div className="h-screen flex flex-col bg-white relative">
       <PostHeader />
@@ -92,37 +113,46 @@ export default function PostPage() {
         {status === 'error' && (
           <p className="text-center mt-8">오류: {(error as Error).message}</p>
         )}
-        {posts.map((post) => (
-          <div key={post.post_id}>
-            <Link href={`/posts/${post.post_id}`} className="z-0">
-              <PostItem
-                postId={post.post_id}
-                content={post.content}
-                date={new Date(post.created_at).toLocaleString('ko-KR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })}
-                profileImage={post.user.profile_image}
-                nickname={post.user.nickname}
-                tags={[
-                  ...(post.has_weather_tag ? ['날씨'] : []),
-                  ...(post.has_outfit_tag ? ['옷차림'] : []),
-                ]}
-                liked={post.has_liked}
-                likeCount={post.like_count}
-                sensitivity={post.temperature_sensitivity}
-                image={post.post_image}
-                detail={false}
-                my={false}
-              />
-              <div className="border-b" />
-            </Link>
+
+        {posts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <p className="text-lg font-semibold">게시물이 없습니다.</p>
+            <p className="text-sm">새로운 게시물을 작성해보세요!</p>
           </div>
-        ))}
+        ) : (
+          posts.map((post) => (
+            <div key={post.post_id}>
+              <Link href={`/posts/${post.post_id}`} className="z-0">
+                <PostItem
+                  userId={post.user.user_id}
+                  postId={post.post_id}
+                  content={post.content}
+                  date={new Date(post.created_at).toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                  profileImage={post.user.profile_image}
+                  nickname={post.user.nickname}
+                  tags={[
+                    ...(post.has_weather_tag ? ['날씨'] : []),
+                    ...(post.has_outfit_tag ? ['옷차림'] : []),
+                  ]}
+                  liked={post.has_liked}
+                  likeCount={post.like_count}
+                  sensitivity={post.temperature_sensitivity}
+                  image={post.post_image}
+                  detail={false}
+                  my={false}
+                />
+                <div className="border-b" />
+              </Link>
+            </div>
+          ))
+        )}
         <div ref={loadMoreRef} className="h-8 flex justify-center items-center">
           {isFetchingNextPage && <span>더 불러오는 중...</span>}
         </div>

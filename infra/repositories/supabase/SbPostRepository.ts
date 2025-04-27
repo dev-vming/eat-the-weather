@@ -145,20 +145,20 @@ export const SbPostRepository: PostRepository = {
     }));
   },
 
-  async update(post: Post): Promise<void> {
-    const { error } = await supabase
+  async update(postData): Promise<void> {
+    const { data, error } = await supabase
       .from('post')
       .update({
-        content: post.content,
-        post_image: post.post_image,
-        temperature_sensitivity: post.temperature_sensitivity,
-        has_outfit_tag: post.has_outfit_tag,
-        has_weather_tag: post.has_weather_tag,
+        content: postData.content,
+        post_image: postData.post_image ?? null,
+        has_outfit_tag: postData.has_outfit_tag ?? false,
+        has_weather_tag: postData.has_weather_tag ?? false,
         updated_at: new Date().toISOString(),
       })
-      .eq('post_id', post.post_id);
+      .eq('post_id', postData.post_id)
+      .select('*');
 
-    if (error) throw new Error('게시글 수정 실패');
+    if (error || !data) throw new Error('게시글 수정 실패');
   },
 
   async delete(postId: string): Promise<void> {
@@ -169,7 +169,6 @@ export const SbPostRepository: PostRepository = {
     if (error) throw new Error('게시글 삭제 실패');
   },
 
-  /** 게시물 상세 요청 (with has_liked) */
   async getById(postId: string, userId: string): Promise<PostView> {
     // 1) view에서 post 불러오기
     const { data, error } = await supabase
@@ -228,16 +227,78 @@ export const SbPostRepository: PostRepository = {
     return data as Post[];
   },
 
-  async getPopular(regionId?: string, limit: number = 10): Promise<Post[]> {
-    let query = supabase
+  async getLikedPostsByUser(user_id) {
+    // likes 테이블에서 user_id에 매칭되는 post를 join
+    const { data, error } = await supabase
+      .from('like')
+      .select(
+        `
+        post (
+          post_id, content, post_image, created_at, updated_at,
+          like_count,
+          has_outfit_tag, has_weather_tag,
+          temperature_sensitivity,
+          user:user_id ( user_id, nickname, profile_image )
+          )
+          `
+      )
+      .eq('user_id', user_id);
+
+    if (error) throw new Error('좋아요 게시물 조회 실패');
+
+    return data.map((row: any) => {
+      const p = row.post;
+      return {
+        post_id: p.post_id,
+        content: p.content,
+        post_image: p.post_image,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
+        like_count: p.like_count,
+        has_outfit_tag: p.has_outfit_tag,
+        has_weather_tag: p.has_weather_tag,
+        temperature_sensitivity: p.temperature_sensitivity,
+        user: {
+          user_id: p.user.user_id,
+          nickname: p.user.nickname,
+          profile_image: p.user.profile_image,
+        },
+        // 이미 이 usecase는 “내가 좋아요 누른 것이니” has_liked=true 로 고정
+        has_liked: true,
+      } as PostView;
+    });
+  },
+
+  async getPostsByUser(user_id: string): Promise<PostView[]> {
+    const { data, error } = await supabase
       .from('post_view')
       .select('*')
-      .order('like_count', { ascending: false })
-      .limit(limit);
-    if (regionId) query = query.eq('region_id', regionId);
+      // user JSON 안의 user_id를 꺼내서 비교
+      .eq('user->>user_id', user_id)
+      .order('created_at', { ascending: false });
 
-    const { data, error } = await query;
-    if (error || !data) throw new Error('인기 게시글 조회 실패');
-    return data as Post[];
+    if (error) {
+      console.error('Supabase getPostsByUser error:', error);
+      throw new Error('내가 쓴 게시물 조회 실패');
+    }
+    if (!data) return [];
+
+    return data.map((row: any) => ({
+      post_id: row.post_id,
+      content: row.content,
+      post_image: row.post_image,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      like_count: row.like_count,
+      has_outfit_tag: row.has_outfit_tag,
+      has_weather_tag: row.has_weather_tag,
+      temperature_sensitivity: row.temperature_sensitivity,
+      user: {
+        user_id: row.user.user_id,
+        nickname: row.user.nickname,
+        profile_image: row.user.profile_image,
+      },
+      has_liked: false,
+    }));
   },
 };

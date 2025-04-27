@@ -5,7 +5,8 @@ import { GetPostByIdUsecase } from '@/application/usecases/post/GetPostByIdUseca
 import { GetPostByIdRequestDto } from '@/application/usecases/post/dto/GetPostByIdDto';
 import { SbPostRepository } from '@/infra/repositories/supabase/SbPostRepository';
 import { DeletePostUsecase } from '@/application/usecases/post/DeletePostUsecase';
-
+import { UpdatePostRequestDto } from '@/application/usecases/post/dto/UpdatePostDto';
+import { UpdatePostUsecase } from '@/application/usecases/post/UpdatePostUsecase';
 
 /**
  * 게시글 상세 조회 API
@@ -62,4 +63,18 @@ export async function DELETE(
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const dto: UpdatePostRequestDto = { ...body };
 
+    await UpdatePostUsecase(SbPostRepository, dto);
+    return NextResponse.json({ message: '게시글 수정 성공' }, { status: 200 });
+  } catch (error: any) {
+    console.error('게시글 수정 실패:', error);
+    return NextResponse.json(
+      { message: error.message || '게시글 수정 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}

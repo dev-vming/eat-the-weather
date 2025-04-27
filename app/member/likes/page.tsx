@@ -2,89 +2,33 @@
 
 import { BackButton } from '@/app/components/BackButton';
 import PostItem from '@/app/components/PostItem';
+import { PostView } from '@/domain/entities/PostView';
+import { api } from '@/lib/axios';
+import { useUserStore } from '@/store/userStore';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
 export default function MemberLikesPage() {
-  const posts = [
-    {
-      post_id: 'post_001',
-      content: '오늘은 정말 더워서 반팔을 입었어요. 다들 여름 준비 되셨나요?',
-      created_at: '2025-04-23T10:30:00Z',
-      user: {
-        nickname: '햇살좋은날',
-      },
-      like_count: 12,
-      temperature_sensitivity: 0,
-      post_image: '/sample1.jpg',
-      has_weather_tag: true,
-      has_outfit_tag: true,
+  const { user } = useUserStore();
+  const {
+    data: posts,
+    status,
+    error,
+  } = useQuery({
+    queryKey: ['posts', 'liked', user.user_id],
+    queryFn: async () => {
+      const res = await api.get<{ posts: PostView[] }>(`/posts/liked`, {
+        headers: { 'x-user-id': user.user_id },
+      });
+      return res.data.posts;
     },
-    {
-      post_id: 'post_002',
-      content: '날이 흐려서 긴팔 셔츠 입었어요. 바람도 살짝 불어요.',
-      created_at: '2025-04-22T18:45:00Z',
-      user: {
-        nickname: '구름이몽글',
-      },
-      like_count: 5,
-      temperature_sensitivity: -1,
-      post_image: '/sample2.jpg',
-      has_weather_tag: true,
-      has_outfit_tag: false,
-    },
-    {
-      post_id: 'post_003',
-      content: '일교차가 커서 겉옷 꼭 챙기세요!',
-      created_at: '2025-04-21T09:15:00Z',
-      user: {
-        nickname: '겉옷요정',
-      },
-      like_count: 8,
-      temperature_sensitivity: 1,
-      post_image: '/sample3.jpg',
-      has_weather_tag: false,
-      has_outfit_tag: true,
-    },
-    {
-      post_id: 'post_001',
-      content: '오늘은 정말 더워서 반팔을 입었어요. 다들 여름 준비 되셨나요?',
-      created_at: '2025-04-23T10:30:00Z',
-      user: {
-        nickname: '햇살좋은날',
-      },
-      like_count: 12,
-      temperature_sensitivity: 0,
-      post_image: '/sample1.jpg',
-      has_weather_tag: true,
-      has_outfit_tag: true,
-    },
-    {
-      post_id: 'post_002',
-      content: '날이 흐려서 긴팔 셔츠 입었어요. 바람도 살짝 불어요.',
-      created_at: '2025-04-22T18:45:00Z',
-      user: {
-        nickname: '구름이몽글',
-      },
-      like_count: 5,
-      temperature_sensitivity: -1,
-      post_image: '/sample2.jpg',
-      has_weather_tag: true,
-      has_outfit_tag: false,
-    },
-    {
-      post_id: 'post_003',
-      content: '일교차가 커서 겉옷 꼭 챙기세요!',
-      created_at: '2025-04-21T09:15:00Z',
-      user: {
-        nickname: '겉옷요정',
-      },
-      like_count: 8,
-      temperature_sensitivity: 1,
-      post_image: '/sample3.jpg',
-      has_weather_tag: false,
-      has_outfit_tag: true,
-    },
-  ];
+    enabled: !!user.user_id,
+  });
+  console.log('좋아요 게시물 페이지에서:', posts);
+  console.log('유저 아이디? 페이지에서:', user.user_id);
+
+  if (status === 'error') return <p>오류: {(error as Error).message}</p>;
+  if (!posts?.length) return <p>좋아요 누른 게시물이 없습니다.</p>;
 
   return (
     <div className="h-screen flex flex-col bg-white">
@@ -93,10 +37,11 @@ export default function MemberLikesPage() {
         <h1 className="text-lg font-bold">내가 좋아요한 글</h1>
       </div>
       <div className="flex-grow overflow-y-auto px-4 pb-20">
-        {posts.map((post, index) => (
+        {posts?.map((post, index) => (
           <div key={`${post.post_id}_${index}`}>
             <Link href={`/posts/${post.post_id}`}>
               <PostItem
+                postId={post.post_id}
                 content={post.content}
                 date={new Date(post.created_at).toLocaleString('ko-KR', {
                   year: 'numeric',
