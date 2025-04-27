@@ -13,6 +13,7 @@ import { useUserStore } from '@/store/userStore';
 import { useQueryTriggerStore } from '@/store/queryTriggerStore';
 
 export default function PostPage() {
+  const isAuthenticated = useUserStore((state) => state.user.isAuthenticated);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, selectedWeatherRegion } = useUserStore();
@@ -74,6 +75,10 @@ export default function PostPage() {
   });
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/auth/login');
+      return;
+    }
     if (queryTrigger) {
       queryClient.resetQueries({
         queryKey: [
@@ -99,7 +104,7 @@ export default function PostPage() {
   }, [fetchNextPage, hasNextPage]);
 
   const posts: PostView[] = data?.pages.flatMap((page) => page.posts) ?? [];
-
+  if (!isAuthenticated) return null;
   return (
     <div className="h-screen flex flex-col bg-white relative">
       <PostHeader />
