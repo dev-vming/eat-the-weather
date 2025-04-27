@@ -85,7 +85,7 @@ export default function PostDetailPage() {
       </div>
 
       {/* 게시물 영역 */}
-      <div className="pt-2">
+      <div>
         <PostItem
           postId={post_id as string}
           content={postData.content}
