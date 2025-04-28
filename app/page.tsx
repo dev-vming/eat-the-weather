@@ -13,7 +13,8 @@ import { useAutoLocation } from '@/lib/hooks/useAutoLocation';
 export default function HomePage() {
   useAutoLocation();
   const userName = useUserStore((state) => state.user.nickname);
-
+  const regionName = useUserStore((state) => state.selectedWeatherRegion?.name);
+  
   const { selectedWeatherRegion } = useUserStore();
   const { lat, lon } = selectedWeatherRegion ?? {};
   const { data: weather, isLoading, refetch: refetchCurrentWeather } = useCurrentWeather(lat, lon);
@@ -73,10 +74,10 @@ export default function HomePage() {
           <Link href="/posts">
             <Button
               variant="outline"
-              className="w-100 md: w-90 h-11 m-2 mt-3 bg-red-300 rounded-4xl font-bold"
+              className="w-100 md: w-90 h-11 m-2 mt-3 bg-red-300 rounded-4xl font-bold cursor-pointer"
             >
-              OO동 유저들의 실시간 날씨는? <br />
-              N명의 유저 대화 중
+            {regionName?.split(' ')[1]} 유저들의 실시간 날씨는? <br />
+            당신의 날씨를 공유해주세요! ⛅️
             </Button>
           </Link>
         </div>

@@ -158,7 +158,7 @@ export default function PostPage() {
         </div>
       </div>
       <button
-        className="absolute bottom-18 right-8 z-50 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors"
+        className="cursor-pointer absolute bottom-18 right-8 z-50 w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors"
         onClick={() => router.push('/posts/new')}
       >
         <Plus className="w-6 h-6" />
