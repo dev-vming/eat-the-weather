@@ -105,7 +105,7 @@ function OnboardingStep4() {
         이 정보는 "마이페이지"에서 변경할 수 있어!
       </p>
       <Button
-        className="w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+        className="cursor-pointer w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
         onClick={handleButtonClick}
       >
         고마워! 잘 부탁해!

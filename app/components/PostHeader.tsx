@@ -70,19 +70,19 @@ export default function PostHeader() {
         </div>
 
         <Select defaultValue="최신순" onValueChange={handleSortChange}>
-          <SelectTrigger className="w-[130px]">
+          <SelectTrigger className="w-[130px] cursor-pointer">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="최신순">최신순</SelectItem>
-            <SelectItem value="인기순">인기순</SelectItem>
+            <SelectItem className='cursor-pointer' value="최신순">최신순</SelectItem>
+            <SelectItem className='cursor-pointer' value="인기순">인기순</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex justify-between pb-4">
         <div className="flex items-center justify-start gap-2">
-          <Checkbox id="filter" onCheckedChange={handleSensitiveToggle} />
+          <Checkbox id="filter" className='cursor-pointer' onCheckedChange={handleSensitiveToggle} />
           <label
             htmlFor="filter"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -94,7 +94,7 @@ export default function PostHeader() {
         {/* 태그 필터 */}
         <div className="flex gap-2">
           <button
-            className={`px-3 py-1 border rounded-full text-xs font-medium transition-colors ${
+            className={`cursor-pointer px-3 py-1 border rounded-full text-xs font-medium transition-colors ${
               hasOutfitTag
                 ? 'bg-black text-white'
                 : 'bg-white text-gray-600 border-gray-300'
@@ -105,7 +105,7 @@ export default function PostHeader() {
           </button>
 
           <button
-            className={`px-3 py-1 border rounded-full text-xs font-medium transition-colors ${
+            className={`cursor-pointer px-3 py-1 border rounded-full text-xs font-medium transition-colors ${
               hasWeatherTag
                 ? 'bg-black text-white'
                 : 'bg-white text-gray-600 border-gray-300'

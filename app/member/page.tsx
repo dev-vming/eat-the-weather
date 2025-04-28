@@ -173,7 +173,7 @@ export default function ProfilePage() {
         </div>
 
         {!isEditing ? (
-          <button onClick={handleStartEdit} className="mr-2">
+          <button onClick={handleStartEdit} className="mr-2 cursor-pointer">
             <SquarePen className="text-gray-700 w-5 h-5" />
           </button>
         ) : (

@@ -54,7 +54,7 @@ export function RegionSearchCombobox({ value, onChange }: ComboboxProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[280px] justify-between text-md"
+          className="w-[280px] justify-between text-md cursor-pointer"
         >
           {value?.name || '지역을 선택해주세요.'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -68,6 +68,7 @@ export function RegionSearchCombobox({ value, onChange }: ComboboxProps) {
             <CommandGroup>
               {regions.map((region) => (
                 <CommandItem
+                  className='cursor-pointer'
                   key={region.region_id}
                   value={region.name}
                   onSelect={(currentValue: string) => {

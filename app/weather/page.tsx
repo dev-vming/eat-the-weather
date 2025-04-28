@@ -37,8 +37,8 @@ function WeatehrPage() {
 
         {/* 탭 선택 */}
         <TabsList className="self-center mb-4">
-          <TabsTrigger value="weekly">주간 날씨</TabsTrigger>
-          <TabsTrigger value="hourly">시간대별 날씨</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="weekly">주간 날씨</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="hourly">시간대별 날씨</TabsTrigger>
         </TabsList>
 
         {/* 주간 날씨 */}
