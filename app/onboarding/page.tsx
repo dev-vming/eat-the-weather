@@ -48,13 +48,13 @@ function Onboarding() {
         <Image src="/logoImg.png" alt="Logo" width={200} height={200} />
         <div className="w-full flex flex-col max-w-xs gap-2 justify-center items-center">
           <Button
-            className="w-95 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 hover:text-white"
+            className="cursor-pointer w-95 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 hover:text-white"
             onClick={handleStartOnboarding}
           >
             좋아! 알려줄게
           </Button>
           <Button
-            className="w-95 py-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-400 hover:text-gray-900"
+            className="cursor-pointer w-95 py-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-400 hover:text-gray-900"
             onClick={handleSkipOnboarding}
           >
             괜찮아, 나중에 할래!

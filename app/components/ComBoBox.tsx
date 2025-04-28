@@ -102,7 +102,7 @@ export function ComboboxDemo() {
           variant="ghost"
           role="combobox"
           aria-expanded={open}
-          className="font-bold text-lg w-[14rem] justify-between bg-white"
+          className="font-bold text-lg w-[14rem] justify-between bg-white cursor-pointer"
         >
           {selectedWeatherRegion?.name || initialRegion?.name || '지역을 선택해주세요.'}
           <ChevronsUpDown className="opacity-50" />
@@ -148,6 +148,7 @@ export function ComboboxDemo() {
               <CommandGroup>
                 {regions.map((region) => (
                   <CommandItem
+                    className='cursor-pointer'
                     key={region.region_id}
                     value={region.region_name}
                     onSelect={(currentValue: string) => {

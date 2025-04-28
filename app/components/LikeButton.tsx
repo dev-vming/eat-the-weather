@@ -84,7 +84,7 @@ export default function LikeButton({
     <button
       type="button"
       className="
-        cursor-pointer p-1 rounded hover:bg-gray-200 transition-colors focus:outline-none
+        cursor-pointer p-1 rounded transition-colors focus:outline-none
       "
       onClick={(e) => {
         e.preventDefault();

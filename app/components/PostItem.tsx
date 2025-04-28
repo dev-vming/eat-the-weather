@@ -91,7 +91,7 @@ export default function PostItem({
         </div>
       )}
 
-      <div className="flex justify-between mb-3 z-10 hover:bg-gray-100 cursor-pointer">
+      <div className="flex justify-between mb-3 z-10 ">
         <PostUserBox
           nickname={nickname}
           date={date}

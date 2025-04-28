@@ -34,7 +34,7 @@ function OnboardingStep3() {
             key={index}
             value={index}
             onClick={() => setSelectedFeeling(index)}
-            className={`w-full py-3 rounded-lg shadow-md ${
+            className={`cursor-pointer w-full py-3 rounded-lg shadow-md ${
               selectedFeeling === index
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -46,13 +46,13 @@ function OnboardingStep3() {
       </div>
       <div className="flex justify-between w-full max-w-xs mt-6 space-x-4">
         <Button
-          className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
+          className="cursor-pointer flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
           onClick={handlePrevious}
         >
           이전
         </Button>
         <Button
-          className="flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+          className="cursor-pointer flex-1 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={handleNext}
           disabled={selectedFeeling === null}
         >

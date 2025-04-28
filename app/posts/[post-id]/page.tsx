@@ -148,7 +148,7 @@ export default function PostDetailPage() {
         />
         <Button
           variant="default"
-          className="text-sm px-3"
+          className="text-sm px-3 cursor-pointer"
           onClick={handleCommentSubmit}
         >
           등록
