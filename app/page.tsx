@@ -15,7 +15,9 @@ import { CurrentWeatherResponse } from '@/lib/types/weather';
 export default function HomePage() {
   useAutoLocation();
   const userName = useUserStore((state) => state.user.nickname);
+  const regionName = useUserStore((state) => state.selectedWeatherRegion?.name);
   const userTemperatureSensitivity = useUserStore((state) => state.user.temperature_sensitivity);
+
   const { selectedWeatherRegion } = useUserStore();
   const { lat, lon } = selectedWeatherRegion ?? {};
   const { data: weather, isLoading, refetch: refetchCurrentWeather } = useCurrentWeather(lat, lon);
@@ -111,9 +113,10 @@ export default function HomePage() {
           <Link href="/posts">
             <Button
               variant="outline"
-              className="w-100 md: w-90 h-11 m-2 mt-3 bg-red-300 rounded-4xl font-bold"
+              className="w-100 md: w-90 h-11 m-2 mt-3 bg-red-300 rounded-4xl font-bold cursor-pointer"
             >
-              {selectedWeatherRegion?.name} 유저들의 실시간 날씨는?
+            {regionName?.split(' ')[1]} 유저들의 실시간 날씨는? <br />
+            당신의 날씨를 공유해주세요! ⛅️
             </Button>
           </Link>
         </div>
