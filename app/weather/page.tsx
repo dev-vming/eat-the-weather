@@ -5,11 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Hourly } from './Hourly';
 import { Weekly } from './Weekly';
 import { ComboboxDemo } from '../components/ComBoBox';
-import { useCheckAuth } from '@/lib/hooks/useCheckAuth';
 import { BackButton } from '../components/BackButton';
 
 function WeatehrPage() {
-  useCheckAuth();
   
   const weekLabel = useMemo(() => {
     const today = new Date();
