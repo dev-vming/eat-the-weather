@@ -9,12 +9,15 @@ import { Button } from '@/components/ui/button';
 import { useUserStore } from '@/store/userStore';
 import { useCurrentWeather } from '@/lib/hooks/useWeather';
 import { useAutoLocation } from '@/lib/hooks/useAutoLocation';
+import { CurrentWeatherResponse } from '@/lib/types/weather';
+
 
 export default function HomePage() {
   useAutoLocation();
   const userName = useUserStore((state) => state.user.nickname);
   const regionName = useUserStore((state) => state.selectedWeatherRegion?.name);
-  
+  const userTemperatureSensitivity = useUserStore((state) => state.user.temperature_sensitivity);
+
   const { selectedWeatherRegion } = useUserStore();
   const { lat, lon } = selectedWeatherRegion ?? {};
   const { data: weather, isLoading, refetch: refetchCurrentWeather } = useCurrentWeather(lat, lon);
@@ -39,6 +42,43 @@ export default function HomePage() {
       setIsSpinning(false); // 회전 멈춤
     }, 500); // 1초 후 정지
   };
+
+  const weatherMessage = (userTemperatureSensitivity: number, weather: CurrentWeatherResponse | undefined) => {
+    if(weather?.main?.temp === undefined) return;
+    if (weather?.main?.temp > 23){
+      if (userTemperatureSensitivity === 0 ) {
+        return "민소매가 어울리는 날씨에요!";
+      } else if (userTemperatureSensitivity === -1) {
+        return "얇은 셔츠가 어울리는 날씨에요!";
+      }   else if (userTemperatureSensitivity === 1) {
+        return "수영복이 어울리는 날씨에요! 땀샘 폭발 🔥";
+      }
+    } else if (weather?.main?.temp < 22 && weather?.main?.temp > 15) {
+    
+      if (userTemperatureSensitivity === 0) {
+        return "얇은 셔츠가 어울리는 날씨에요!";
+      } else if (userTemperatureSensitivity === -1) {
+        return "트렌치코트가 어울리는 날씨에요!";
+      } else if (userTemperatureSensitivity === 1) {
+        return "민소매가 어울리는 날씨에요!";
+      }
+    } else if (weather?.main?.temp < 14 && weather?.main?.temp > 6) {
+      if (userTemperatureSensitivity === 0) {
+        return "트렌치코트가 어울리는 날씨에요!";
+      } else if (userTemperatureSensitivity === -1) {
+        return "패딩이 어울리는 날씨에요!";
+      } else if (userTemperatureSensitivity === 1) {
+        return "얇은 셔츠가 어울리는 날씨에요!";
+      }
+     } else if (weather?.main?.temp <= 5) {
+      if (userTemperatureSensitivity === 0) {
+        return "패딩이 어울리는 날씨에요!";
+      } else if (userTemperatureSensitivity === -1) {
+        return "오늘의 OOTD: 살아남기 💀";
+      } else if (userTemperatureSensitivity === 1) {
+        return "패딩이 어울리는 날씨에요!";
+      }}};
+  
   return (
     <main className="justify-center items-center flex flex-col h-screen w-full">
       <div className="flex flex-col">
@@ -67,9 +107,8 @@ export default function HomePage() {
           <img src="/sun.png" alt="Logo" className="w-auto h-65 md:h-80 mt-3" />
 
           {/* 날씨 설명 */}
-          <div className="mt-4 font-bold">{userName}님, </div>
-          <div className="font-bold">얇은 패딩이 어울리는 날씨에요!</div>
-
+          <div className="mt-4 font-bold">{userName || "테루루"}님, </div>
+          <div className="font-bold">{weatherMessage(userTemperatureSensitivity, weather)}</div>
           {/* 게시판 버튼 */}
           <Link href="/posts">
             <Button

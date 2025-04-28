@@ -56,22 +56,23 @@ export function ComboboxDemo() {
             lat: r.lat,
             lon: r.lon,
           })));
-
-          const primary = data.find((r) => r.is_primary);
-          if (primary) {
-            setSelectedWeatherRegion({
-              region_id: primary.region_id,
-              name: primary.region_name,
-              is_primary: primary.is_primary,
-              lat: primary.lat,
-              lon: primary.lon,
-            });
-            setSelectedRegion({
-              region_id: primary.region_id,
-              region_name: primary.region_name,
-              lat: primary.lat,
-              lon: primary.lon,
-            });
+          if (!selectedWeatherRegion) {
+            const primary = data.find((r) => r.is_primary);
+            if (primary) {
+              setSelectedWeatherRegion({
+                region_id: primary.region_id,
+                name: primary.region_name,
+                is_primary: primary.is_primary,
+                lat: primary.lat,
+                lon: primary.lon,
+              });
+              setSelectedRegion({
+                region_id: primary.region_id,
+                region_name: primary.region_name,
+                lat: primary.lat,
+                lon: primary.lon,
+              });
+            }
           }
         } else if (initialRegion) {
           setSelectedWeatherRegion(initialRegion);
