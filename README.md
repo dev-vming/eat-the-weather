@@ -17,19 +17,19 @@
     <td>
       <img src="https://avatars.githubusercontent.com/1juyoung" width="100" height="100"/><br/>
       <b>김주영</b><br/>
-      역할<br/>
+      팀원<br/>
       <a href="https://github.com/1juyoung">GitHub</a>
     </td>
     <td>
       <img src="https://avatars.githubusercontent.com/dev-vming" width="100" height="100"/><br/>
       <b>양민정</b><br/>
-      역할<br/>
+      팀장<br/>
       <a href="https://github.com/dev-vming">GitHub</a>
     </td>
     <td>
       <img src="https://avatars.githubusercontent.com/ChoiMHMH" width="100" height="100"/><br/>
       <b>최민혁</b><br/>
-      역할<br/>
+      팀원<br/>
       <a href="https://github.com/ChoiMHMH">GitHub</a>
     </td>
   </tr>
@@ -70,7 +70,7 @@
 
 - [x] 기획 및 와이어프레임 완성
 - [x] Flow-chart 및 시스템 설계 완료
-- [ ] 기능 구현 중 (날씨/게시판/로그인/마이페이지 등)
+- [x] 기능 구현 중 (날씨/게시판/로그인/마이페이지 등)
 
 ---
 
