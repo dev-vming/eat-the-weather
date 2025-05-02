@@ -17,19 +17,19 @@
     <td>
       <img src="https://avatars.githubusercontent.com/1juyoung" width="100" height="100"/><br/>
       <b>김주영</b><br/>
-      역할<br/>
+      팀원<br/>
       <a href="https://github.com/1juyoung">GitHub</a>
     </td>
     <td>
       <img src="https://avatars.githubusercontent.com/dev-vming" width="100" height="100"/><br/>
       <b>양민정</b><br/>
-      역할<br/>
+      팀장<br/>
       <a href="https://github.com/dev-vming">GitHub</a>
     </td>
     <td>
       <img src="https://avatars.githubusercontent.com/ChoiMHMH" width="100" height="100"/><br/>
       <b>최민혁</b><br/>
-      역할<br/>
+      팀원<br/>
       <a href="https://github.com/ChoiMHMH">GitHub</a>
     </td>
   </tr>
@@ -49,9 +49,6 @@
 - 🧑‍💻 마이페이지로 개인 활동 관리
 - 🔐 간편 로그인 기능으로 접근성 향상
 
-<p align="center">
-  <img src="테루루_이미지_URL" alt="테루루" width="100"/>
-</p>
 
 > 위의 테루루 캐릭터들은 날씨에 따라 변화하며, 사용자가 날씨를 감각적으로 인지할 수 있도록 도와줍니다.
 
@@ -70,7 +67,7 @@
 
 - [x] 기획 및 와이어프레임 완성
 - [x] Flow-chart 및 시스템 설계 완료
-- [ ] 기능 구현 중 (날씨/게시판/로그인/마이페이지 등)
+- [x] 기능 구현 중 (날씨/게시판/로그인/마이페이지 등)
 
 ---
 
