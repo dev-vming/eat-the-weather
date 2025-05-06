@@ -1,71 +1,59 @@
 # 🌤️ Eat the Weather
 
-<p align="center">
-  <img src="public/EatTheWeather.png" alt="Eat the Weather Logo" width="200"/>
-</p>
+![image](https://github.com/user-attachments/assets/bb65d630-e1a7-4984-a347-b026344b3f3c)
 
-> **날씨를 ‘보는’ 데서 그치지 않고, 직접 ‘경험하고 공유하는’ 날씨 커뮤니티 웹 애플리케이션**
 
 ---
 
-## 🧑‍🤝‍🧑 팀 소개
 
-<div align="center">
+## 🌈 주요 기능 설명
 
-<table>
-  <tr align="center">
-    <td>
-      <img src="https://avatars.githubusercontent.com/1juyoung" width="100" height="100"/><br/>
-      <b>김주영</b><br/>
-      팀원<br/>
-      <a href="https://github.com/1juyoung">GitHub</a>
-    </td>
-    <td>
-      <img src="https://avatars.githubusercontent.com/dev-vming" width="100" height="100"/><br/>
-      <b>양민정</b><br/>
-      팀장<br/>
-      <a href="https://github.com/dev-vming">GitHub</a>
-    </td>
-    <td>
-      <img src="https://avatars.githubusercontent.com/ChoiMHMH" width="100" height="100"/><br/>
-      <b>최민혁</b><br/>
-      팀원<br/>
-      <a href="https://github.com/ChoiMHMH">GitHub</a>
-    </td>
-  </tr>
-</table>
-
-</div>
-
----
-
-## 🌈 프로젝트 소개
-
-기존 날씨 앱은 숫자만 보여주는 정보 중심이지만,  
-**Eat the Weather**는 감성적인 날씨 경험과 소통을 제공합니다.
-
-- 🌍 위치 기반 실시간 날씨 정보
-- 📮 체감 날씨를 자유롭게 공유하는 게시판
-- 🧑‍💻 마이페이지로 개인 활동 관리
-- 🔐 간편 로그인 기능으로 접근성 향상
+### 🔐 회원가입 & 로그인
+![image](https://github.com/user-attachments/assets/e20cdc00-ce5a-4cc9-9fcc-a7b06afa0adb)
 
 
-> 위의 테루루 캐릭터들은 날씨에 따라 변화하며, 사용자가 날씨를 감각적으로 인지할 수 있도록 도와줍니다.
+### 🌡️ 날씨 민감도 기반 개인화 (온보딩)
+![image](https://github.com/user-attachments/assets/3ff3746b-5b69-4bf1-9cf7-f9a8dfc5c6d6)
+
+
+### 🧭 위치 기반 날씨 정보
+- **[초기]** 브라우저 위치 → Kakao API로 행정구역 확인 → OpenWeather API로 날씨 조회
+- **[이후]** 즐겨찾기에 저장된 지역 선택 → OpenWeather API로 날씨 조회
+![image](https://github.com/user-attachments/assets/3c4619ab-4463-4733-b1f7-48b8ba4aa341)
+
+
+### 💬 지역 게시판 기능
+- 대표 지역 기반으로 날씨 관련 이야기 공유
+- 게시글 작성 시 **날씨/의류 태그** 필수 선택
+- 댓글 작성 가능, **내 댓글만 삭제 가능**
+- 좋아요 기능 제공
+  
+<br/>
 
 ---
 
 ## 🛠️ 기술 스택
 
-- **Frontend**: Next.js, React  
-- **CSS Framework**: Tailwind CSS  
-- **Backend**: Next.js, Supabase  
-- **State Management**: zustand, TanStack Query
+![image](https://github.com/user-attachments/assets/a5a77ff6-a922-49d7-89c6-3c452f70c0b5)
+
 
 ---
 
-## ✨ 프로젝트 목표
 
-**사용자 감정과 날씨가 연결되는 커뮤니티**  
-단순한 정보 전달이 아닌 감성 기반의 일상 공유 플랫폼
+## 🗂 데이터베이스 구조
+![image](https://github.com/user-attachments/assets/ea2977c5-df2d-44fb-b4ed-297905253bf5)
+
 
 ---
+
+## 📄 참고사항
+
+- Supabase는 인증 기능은 사용하지 않고, **DB 전용**으로만 활용=
+- 클라이언트 API는 Axios 기반 커스텀 인스턴스 사용
+- 외부 API는 'fetch' 사용 (예: Kakao 주소 API, 날씨 API)
+- 백엔드 구조는 "클린 아키텍처" 기반 작성
+  ![image](https://github.com/user-attachments/assets/88694e9b-f08b-44db-9d9d-e684d14127e2)
+
+  <br/>
+
+  
